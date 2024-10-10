@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Fire Detection</string>
+    <string name="fire_notification">FIRE DETECTED</string>
+    <string name="none_notification">NO FIRE DETECTED</string>
+</resources>

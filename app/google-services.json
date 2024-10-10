@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "873031462898",
+    "firebase_url": "https://fire-detection-3819f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fire-detection-3819f",
+    "storage_bucket": "fire-detection-3819f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:873031462898:android:4602e2c16a05cf7659856b",
+        "android_client_info": {
+          "package_name": "com.study.firedetection"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD5j-ZfyiBbkDUVOuJZx-_VCoLvcyw3GFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
