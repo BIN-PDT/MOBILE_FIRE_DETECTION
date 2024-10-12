@@ -33,7 +33,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
-    private boolean flagDetected = false;
+    private boolean flagReady = false, flagDetected = false;
     private LinearLayout mainLayout;
     private ImageView ivNotification;
     private TextView tvNotification;
@@ -72,61 +72,64 @@ public class MainActivity extends AppCompatActivity {
                 Boolean detected = snapshot.getValue(Boolean.class);
                 flagDetected = detected != null ? detected : false;
                 changeLayout(flagDetected);
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                if (!flagReady) {
+                    flagReady = true;
+                    DatabaseReference capturedRef = database.getReference("captured");
+                    capturedRef.limitToLast(1).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (flagDetected && snapshot.exists()) {
+                                LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
+                                DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
 
-            }
-        });
+                                int index = 0;
+                                for (DataSnapshot childNode : lastCapture.getChildren()) {
+                                    String imageURL = childNode.getValue(String.class);
+                                    ImageView captureContainer = LIST_CONTAINER.get(index);
 
-        DatabaseReference capturedRef = database.getReference("captured");
-        capturedRef.limitToLast(1).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (flagDetected && snapshot.exists()) {
-                    LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
-                    DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
-
-                    int index = 0;
-                    for (DataSnapshot childNode : lastCapture.getChildren()) {
-                        String imageURL = childNode.getValue(String.class);
-                        ImageView captureContainer = LIST_CONTAINER.get(index);
-
-                        Glide.with(MainActivity.this)
-                                .load(imageURL)
-                                .apply(new RequestOptions().transform(new RoundedCorners(20)))
-                                .into(captureContainer);
-                        captureContainer.setOnClickListener(v -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            Uri imageUri = Uri.parse(imageURL);
-                            intent.setDataAndType(imageUri, "image/*");
-                            if (intent.resolveActivity(getPackageManager()) != null) {
-                                startActivity(intent);
+                                    Glide.with(MainActivity.this)
+                                            .load(imageURL)
+                                            .apply(new RequestOptions().transform(new RoundedCorners(20)))
+                                            .into(captureContainer);
+                                    captureContainer.setOnClickListener(v -> {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                                        Uri imageUri = Uri.parse(imageURL);
+                                        intent.setDataAndType(imageUri, "image/*");
+                                        if (intent.resolveActivity(getPackageManager()) != null) {
+                                            startActivity(intent);
+                                        }
+                                    });
+                                    index++;
+                                }
                             }
-                        });
-                        index++;
-                    }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                    capturedRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            List<HistoryItem> listItem = new ArrayList<>();
+                            snapshot.getChildren().forEach(dataTimestamp -> {
+                                List<String> listURL = new ArrayList<>();
+                                dataTimestamp.getChildren().forEach(dataCapture ->
+                                        listURL.add(dataCapture.getValue(String.class)));
+                                listItem.add(new HistoryItem(dataTimestamp.getKey(), listURL));
+                            });
+                            Collections.reverse(listItem);
+                            historyRecyclerAdapter.setData(listItem);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        capturedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<HistoryItem> listItem = new ArrayList<>();
-                snapshot.getChildren().forEach(dataTimestamp -> {
-                    List<String> listURL = new ArrayList<>();
-                    dataTimestamp.getChildren().forEach(dataCapture ->
-                            listURL.add(dataCapture.getValue(String.class)));
-                    listItem.add(new HistoryItem(dataTimestamp.getKey(), listURL));
-                });
-                Collections.reverse(listItem);
-                historyRecyclerAdapter.setData(listItem);
             }
 
             @Override
