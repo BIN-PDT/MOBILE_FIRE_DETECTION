@@ -45,6 +45,8 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         HistoryItem item = this.data.get(position);
         holder.tvTimestamp.setText(item.getTimestamp());
+        holder.LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
+
         for (int i = 0; i < item.getListCaptureUrl().size(); i++) {
             String captureURL = item.getListCaptureUrl().get(i);
             ImageView captureContainer = holder.LIST_CONTAINER.get(i);

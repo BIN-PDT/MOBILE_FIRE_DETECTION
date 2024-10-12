@@ -68,7 +68,8 @@
         android:layout_height="match_parent"
         android:layout_marginHorizontal="15dp"
         android:background="@drawable/bg_history"
-        android:paddingHorizontal="15dp">
+        android:paddingHorizontal="15dp"
+        android:paddingTop="15dp">
 
     </androidx.recyclerview.widget.RecyclerView>
 
