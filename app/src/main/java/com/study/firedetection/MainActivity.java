@@ -36,17 +36,25 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
+@SuppressLint("SimpleDateFormat")
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
     private boolean flagReady = false, flagDetected = false;
+    private final SimpleDateFormat SRC_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private final SimpleDateFormat DES_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private final Date CURRENT_DATE = DateUtils.getDate(new Date());
+    private Date selectedDate = this.CURRENT_DATE;
     private LinearLayout layoutNotifying;
     private HorizontalScrollView layoutDetecting;
-    private ImageView ivNotification;
-    private TextView tvNotification;
+    private ImageView ivNotification, btnBackward, btnForward;
+    private TextView tvNotification, tvDate;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
 
     @Override
@@ -77,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         this.LIST_CONTAINER.add(findViewById(R.id.iv_capture_1));
         this.LIST_CONTAINER.add(findViewById(R.id.iv_capture_2));
         this.LIST_CONTAINER.add(findViewById(R.id.iv_capture_3));
+        this.btnBackward = findViewById(R.id.btn_backward);
+        this.btnForward = findViewById(R.id.btn_forward);
+        this.tvDate = findViewById(R.id.tv_date);
         // HISTORY LAYOUT.
         RecyclerView rvHistory = findViewById(R.id.rv_history);
         this.historyRecyclerAdapter = new HistoryRecyclerAdapter(this);
@@ -86,6 +97,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onEvent() {
+        // CALENDAR EVENT.
+        this.tvDate.setText(DateUtils.format(this.selectedDate));
+        this.btnBackward.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(this.selectedDate);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+
+            this.selectedDate = calendar.getTime();
+            this.tvDate.setText(DateUtils.format(this.selectedDate));
+            filterHistory();
+        });
+        this.btnForward.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(this.selectedDate);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+            this.selectedDate = calendar.getTime();
+            this.tvDate.setText(DateUtils.format(this.selectedDate));
+            filterHistory();
+        });
+        // FIREBASE EVENT.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference detectedRef = database.getReference("detected");
         detectedRef.addValueEventListener(new ValueEventListener() {
@@ -134,26 +166,8 @@ public class MainActivity extends AppCompatActivity {
                     });
                     capturedRef.addValueEventListener(new ValueEventListener() {
                         @Override
-                        @SuppressLint("SimpleDateFormat")
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            List<HistoryItem> listItem = new ArrayList<>();
-                            SimpleDateFormat srcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            SimpleDateFormat desFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
-                            snapshot.getChildren().forEach(dataTimestamp -> {
-                                List<String> listURL = new ArrayList<>();
-                                String timestamp = dataTimestamp.getKey();
-                                try {
-                                    timestamp = desFormat.format(srcFormat.parse(dataTimestamp.getKey()));
-                                } catch (ParseException ignored) {
-                                }
-
-                                dataTimestamp.getChildren().forEach(dataCapture ->
-                                        listURL.add(dataCapture.getValue(String.class)));
-                                listItem.add(new HistoryItem(timestamp, listURL));
-                            });
-                            Collections.reverse(listItem);
-                            historyRecyclerAdapter.setData(listItem);
+                            filterHistory();
                         }
 
                         @Override
@@ -173,6 +187,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeLayout(boolean detected) {
         if (detected) {
+            if (!selectedDate.equals(CURRENT_DATE)) {
+                selectedDate = CURRENT_DATE;
+                historyRecyclerAdapter.setData(new ArrayList<>());
+            }
+            tvDate.setText(DateUtils.format(selectedDate));
+
             int color = ContextCompat.getColor(this, R.color.fire);
             this.layoutNotifying.setBackgroundColor(color);
             this.layoutDetecting.setVisibility(View.VISIBLE);
@@ -196,5 +216,39 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
             }
         }
+    }
+
+    private void filterHistory() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference capturedRef = database.getReference("captured");
+        capturedRef.get().addOnCompleteListener(task -> {
+            List<HistoryItem> listItem = new ArrayList<>();
+
+            for (DataSnapshot dataTimestamp : task.getResult().getChildren()) {
+                String timestamp = dataTimestamp.getKey();
+                if (timestamp != null) {
+                    try {
+                        timestamp = DES_FORMAT.format(SRC_FORMAT.parse(dataTimestamp.getKey()));
+                    } catch (ParseException ignored) {
+                    }
+                    String[] timeComponents = timestamp.split(" ");
+
+                    Date dateValue = DateUtils.parse(timeComponents[0]);
+                    try {
+                        if (Objects.requireNonNull(dateValue).after(selectedDate)) break;
+                        if (dateValue.equals(selectedDate)) {
+                            List<String> listURL = new ArrayList<>();
+                            dataTimestamp.getChildren().forEach(dataCapture ->
+                                    listURL.add(dataCapture.getValue(String.class)));
+                            listItem.add(new HistoryItem(timeComponents[1], listURL));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+
+            Collections.reverse(listItem);
+            historyRecyclerAdapter.setData(listItem);
+        });
     }
 }
