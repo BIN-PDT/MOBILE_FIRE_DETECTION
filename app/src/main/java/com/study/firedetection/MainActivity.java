@@ -1,11 +1,14 @@
 package com.study.firedetection;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -26,6 +29,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
     private boolean flagReady = false, flagDetected = false;
-    private LinearLayout mainLayout;
+    private LinearLayout layoutNotifying;
+    private HorizontalScrollView layoutDetecting;
     private ImageView ivNotification;
     private TextView tvNotification;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
@@ -49,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onReady() {
-        this.mainLayout = findViewById(R.id.main);
+        this.layoutNotifying = findViewById(R.id.layout_notifying);
+        this.layoutDetecting = findViewById(R.id.layout_detecting);
         this.ivNotification = findViewById(R.id.iv_notification);
         this.tvNotification = findViewById(R.id.tv_notification);
         this.LIST_CONTAINER.add(findViewById(R.id.iv_capture_1));
@@ -112,13 +119,23 @@ public class MainActivity extends AppCompatActivity {
                     });
                     capturedRef.addValueEventListener(new ValueEventListener() {
                         @Override
+                        @SuppressLint("SimpleDateFormat")
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             List<HistoryItem> listItem = new ArrayList<>();
+                            SimpleDateFormat srcFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            SimpleDateFormat desFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
                             snapshot.getChildren().forEach(dataTimestamp -> {
                                 List<String> listURL = new ArrayList<>();
+                                String timestamp = dataTimestamp.getKey();
+                                try {
+                                    timestamp = desFormat.format(srcFormat.parse(dataTimestamp.getKey()));
+                                } catch (ParseException ignored) {
+                                }
+
                                 dataTimestamp.getChildren().forEach(dataCapture ->
                                         listURL.add(dataCapture.getValue(String.class)));
-                                listItem.add(new HistoryItem(dataTimestamp.getKey(), listURL));
+                                listItem.add(new HistoryItem(timestamp, listURL));
                             });
                             Collections.reverse(listItem);
                             historyRecyclerAdapter.setData(listItem);
@@ -141,14 +158,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeLayout(boolean detected) {
         if (detected) {
-            this.mainLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_fire));
+            int color = ContextCompat.getColor(this, R.color.fire);
+            this.layoutNotifying.setBackgroundColor(color);
+            this.layoutDetecting.setVisibility(View.VISIBLE);
             this.ivNotification.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_fire));
             this.tvNotification.setText(ContextCompat.getString(this, R.string.fire_notification));
+            this.tvNotification.setTextColor(color);
         } else {
-            this.mainLayout.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_none));
+            int color = ContextCompat.getColor(this, R.color.none);
+            this.layoutNotifying.setBackgroundColor(color);
+            this.layoutDetecting.setVisibility(View.GONE);
             this.ivNotification.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_none));
             this.tvNotification.setText(ContextCompat.getString(this, R.string.none_notification));
             this.LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
+            this.tvNotification.setTextColor(color);
         }
     }
 
