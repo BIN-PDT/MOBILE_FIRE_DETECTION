@@ -1,4 +1,4 @@
-package com.study.firedetection;
+package com.study.firedetection.service;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +12,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.study.firedetection.R;
 
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {

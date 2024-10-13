@@ -32,6 +32,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.study.firedetection.adapter.HistoryRecyclerAdapter;
+import com.study.firedetection.entity.HistoryItem;
+import com.study.firedetection.utils.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,14 +48,14 @@ import java.util.Objects;
 @SuppressLint("SimpleDateFormat")
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
-    private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
-    private boolean flagReady = false, flagDetected = false;
     private final SimpleDateFormat SRC_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final SimpleDateFormat DES_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private final Date CURRENT_DATE = DateUtils.getDate(new Date());
+    private boolean flagReady = false, flagDetected = false;
     private Date selectedDate = this.CURRENT_DATE;
     private LinearLayout layoutNotifying;
     private HorizontalScrollView layoutDetecting;
+    private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
     private ImageView ivNotification, btnBackward, btnForward;
     private TextView tvNotification, tvDate;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
@@ -185,6 +188,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
     private void changeLayout(boolean detected) {
         if (detected) {
             if (!selectedDate.equals(CURRENT_DATE)) {
@@ -207,14 +218,6 @@ public class MainActivity extends AppCompatActivity {
             this.tvNotification.setText(ContextCompat.getString(this, R.string.none_notification));
             this.LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
             this.tvNotification.setTextColor(color);
-        }
-    }
-
-    private void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
-            }
         }
     }
 

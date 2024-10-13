@@ -1,4 +1,4 @@
-package com.study.firedetection;
+package com.study.firedetection.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import com.study.firedetection.R;
+import com.study.firedetection.entity.HistoryItem;
 
 import java.util.ArrayList;
 import java.util.List;

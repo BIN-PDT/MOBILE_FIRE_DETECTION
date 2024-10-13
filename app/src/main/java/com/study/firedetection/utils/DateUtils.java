@@ -1,4 +1,4 @@
-package com.study.firedetection;
+package com.study.firedetection.utils;
 
 import android.annotation.SuppressLint;
 

@@ -1,4 +1,4 @@
-package com.study.firedetection;
+package com.study.firedetection.entity;
 
 import java.util.List;
 
