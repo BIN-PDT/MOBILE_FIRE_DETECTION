@@ -7,7 +7,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.splashscreen.SplashScreen;
+import androidx.core.splashscreen.SplashScreenViewProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,6 +52,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        splashScreen.setOnExitAnimationListener(new SplashScreen.OnExitAnimationListener() {
+            @Override
+            public void onSplashScreenExit(@NonNull SplashScreenViewProvider splashScreenViewProvider) {
+                new Handler().postDelayed(() -> {
+                    splashScreenViewProvider.remove();
+                    findViewById(R.id.layout_main).startAnimation(
+                            AnimationUtils.loadAnimation(MainActivity.this, R.anim.entrance));
+                }, 3000);
+            }
+        });
         setContentView(R.layout.activity_main);
         this.onReady();
         this.onEvent();
