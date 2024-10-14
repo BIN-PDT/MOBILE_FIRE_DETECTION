@@ -2,6 +2,7 @@ package com.study.firedetection;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -107,18 +108,32 @@ public class MainActivity extends AppCompatActivity {
             calendar.setTime(this.selectedDate);
             calendar.add(Calendar.DAY_OF_MONTH, -1);
 
-            this.selectedDate = calendar.getTime();
+            this.selectedDate.setTime(calendar.getTimeInMillis());
             this.tvDate.setText(DateUtils.format(this.selectedDate));
-            filterHistory();
+            this.filterHistory();
         });
         this.btnForward.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(this.selectedDate);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
 
-            this.selectedDate = calendar.getTime();
+            this.selectedDate.setTime(calendar.getTimeInMillis());
             this.tvDate.setText(DateUtils.format(this.selectedDate));
-            filterHistory();
+            this.filterHistory();
+        });
+        this.tvDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(this.selectedDate);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    MainActivity.this,
+                    (view, year, month, dayOfMonth) -> {
+                        calendar.set(year, month, dayOfMonth);
+                        this.selectedDate.setTime(calendar.getTimeInMillis());
+                        this.tvDate.setText(DateUtils.format(this.selectedDate));
+                        this.filterHistory();
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.show();
         });
         // FIREBASE EVENT.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
