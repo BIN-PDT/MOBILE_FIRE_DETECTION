@@ -1,7 +1,6 @@
 package com.study.firedetection;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -37,26 +36,21 @@ import com.study.firedetection.adapter.HistoryRecyclerAdapter;
 import com.study.firedetection.entity.HistoryItem;
 import com.study.firedetection.utils.DateUtils;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
-@SuppressLint("SimpleDateFormat")
+
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
-    private final SimpleDateFormat SRC_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final SimpleDateFormat DES_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private final Date CURRENT_DATE = DateUtils.getDate(new Date());
     private boolean flagReady = false, flagDetected = false;
-    private Date selectedDate = this.CURRENT_DATE;
+    private final Date CURRENT_DATE = DateUtils.getDate(new Date());
+    private final Date selectedDate = new Date(this.CURRENT_DATE.getTime());
+    private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
     private LinearLayout layoutNotifying;
     private HorizontalScrollView layoutDetecting;
-    private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
     private ImageView ivNotification, btnBackward, btnForward;
     private TextView tvNotification, tvDate;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
@@ -147,7 +141,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (!flagReady) {
                     flagReady = true;
-                    DatabaseReference capturedRef = database.getReference("captured");
+                    String capturedPath = String.format("captured/%s", DateUtils.format2(selectedDate));
+                    DatabaseReference capturedRef = database.getReference(capturedPath);
                     capturedRef.limitToLast(1).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -213,11 +208,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeLayout(boolean detected) {
         if (detected) {
-            if (!selectedDate.equals(CURRENT_DATE)) {
-                selectedDate = CURRENT_DATE;
-                historyRecyclerAdapter.setData(new ArrayList<>());
+            if (!this.selectedDate.equals(this.CURRENT_DATE)) {
+                this.selectedDate.setTime(this.CURRENT_DATE.getTime());
+                this.historyRecyclerAdapter.setData(new ArrayList<>());
             }
-            tvDate.setText(DateUtils.format(selectedDate));
+            this.tvDate.setText(DateUtils.format(this.selectedDate));
 
             int color = ContextCompat.getColor(this, R.color.fire);
             this.layoutNotifying.setBackgroundColor(color);
@@ -238,31 +233,17 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterHistory() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference capturedRef = database.getReference("captured");
+        String capturedPath = String.format("captured/%s", DateUtils.format2(this.selectedDate));
+        DatabaseReference capturedRef = database.getReference(capturedPath);
         capturedRef.get().addOnCompleteListener(task -> {
             List<HistoryItem> listItem = new ArrayList<>();
 
             for (DataSnapshot dataTimestamp : task.getResult().getChildren()) {
                 String timestamp = dataTimestamp.getKey();
-                if (timestamp != null) {
-                    try {
-                        timestamp = DES_FORMAT.format(SRC_FORMAT.parse(dataTimestamp.getKey()));
-                    } catch (ParseException ignored) {
-                    }
-                    String[] timeComponents = timestamp.split(" ");
-
-                    Date dateValue = DateUtils.parse(timeComponents[0]);
-                    try {
-                        if (Objects.requireNonNull(dateValue).after(selectedDate)) break;
-                        if (dateValue.equals(selectedDate)) {
-                            List<String> listURL = new ArrayList<>();
-                            dataTimestamp.getChildren().forEach(dataCapture ->
-                                    listURL.add(dataCapture.getValue(String.class)));
-                            listItem.add(new HistoryItem(timeComponents[1], listURL));
-                        }
-                    } catch (Exception ignored) {
-                    }
-                }
+                List<String> listURL = new ArrayList<>();
+                dataTimestamp.getChildren().forEach(dataCapture ->
+                        listURL.add(dataCapture.getValue(String.class)));
+                listItem.add(new HistoryItem(timestamp, listURL));
             }
 
             Collections.reverse(listItem);
