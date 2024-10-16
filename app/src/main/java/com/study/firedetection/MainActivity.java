@@ -2,6 +2,8 @@ package com.study.firedetection;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -45,10 +47,10 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
-    private boolean flagReady = false, flagDetected = false;
     private final Date CURRENT_DATE = DateUtils.getDate(new Date());
     private final Date selectedDate = new Date(this.CURRENT_DATE.getTime());
     private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
+    private boolean flagReady = false, flagDetected = false;
     private LinearLayout layoutNotifying;
     private HorizontalScrollView layoutDetecting;
     private ImageView ivNotification, btnBackward, btnForward;
@@ -70,9 +72,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         setContentView(R.layout.activity_main);
+        this.createNotificationChannel();
+        this.requestPermission();
         this.onReady();
         this.onEvent();
-        this.requestPermission();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channel_id = getString(R.string.channel_id);
+            String name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+
+            NotificationChannel channel = new NotificationChannel(channel_id, name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
     }
 
     private void onReady() {
@@ -196,14 +222,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-    }
-
-    private void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
-            }
-        }
     }
 
     private void changeLayout(boolean detected) {

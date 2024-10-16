@@ -11,7 +11,7 @@
         android:id="@+id/layout_notifying"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="vertical"
         android:paddingBottom="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -22,7 +22,7 @@
             android:id="@+id/iv_notification"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:layout_marginVertical="15dp"
+            android:layout_marginTop="20dp"
             android:contentDescription="ICON"
             tools:ignore="HardcodedText" />
 
@@ -37,6 +37,7 @@
         android:background="@drawable/bg_notification"
         android:elevation="15dp"
         android:fontFamily="@font/bree_serif_regular"
+        android:letterSpacing="0.05"
         android:paddingVertical="15dp"
         android:textAlignment="center"
         android:textColor="@color/white"

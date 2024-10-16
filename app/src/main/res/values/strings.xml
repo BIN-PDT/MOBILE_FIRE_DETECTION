@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Fire Detection</string>
-    <string name="fire_notification">FIRE DETECTED</string>
-    <string name="none_notification">NO FIRE DETECTED</string>
+    <string name="channel_name">FIRE DETECTION</string>
+    <string name="channel_id">NOTIFICATION</string>
+    <string name="channel_description">FIRE DETECTION SYSTEM</string>
+    <string name="fire_notification">DANGER ZONE</string>
+    <string name="none_notification">SAFE ZONE</string>
 </resources>
