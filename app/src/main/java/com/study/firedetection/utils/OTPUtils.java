@@ -67,6 +67,7 @@ public class OTPUtils {
                                 super.onCodeSent(verificationId, forceResendingToken);
                                 loadingUtils.hideLoadingDialog();
                                 mVerificationId = verificationId;
+                                mForceResendingToken = forceResendingToken;
                                 showOTPDialog();
                             }
                         })
