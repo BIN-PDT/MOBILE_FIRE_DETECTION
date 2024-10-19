@@ -46,6 +46,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-auth")
+
     implementation("com.github.bumptech.glide:glide:4.14.2")
     implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("com.hbb20:ccp:2.7.1")
 }
