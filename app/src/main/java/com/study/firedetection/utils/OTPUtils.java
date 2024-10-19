@@ -44,7 +44,7 @@ public class OTPUtils {
     public void sendOTP() {
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(this.ccpCountry.getFullNumberWithPlus())
+                        .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -89,7 +89,7 @@ public class OTPUtils {
 
     private void login(String phoneNumber) {
         Intent intent = new Intent(activity, MainActivity.class);
-        intent.putExtra("phoneNumber", phoneNumber);
+        intent.putExtra("userID", phoneNumber);
         activity.startActivity(intent);
         activity.finish();
     }
@@ -139,7 +139,7 @@ public class OTPUtils {
     private void resendOTP() {
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(this.ccpCountry.getFullNumberWithPlus())
+                        .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
                         .setForceResendingToken(mForceResendingToken)
@@ -167,7 +167,7 @@ public class OTPUtils {
 
     private void verifyOTP(String OTPCode) {
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, OTPCode);
-        this.signInWithPhoneAuthCredential(credential);
+        signInWithPhoneAuthCredential(credential);
     }
 
     private static class OTPKeyListener implements View.OnKeyListener {

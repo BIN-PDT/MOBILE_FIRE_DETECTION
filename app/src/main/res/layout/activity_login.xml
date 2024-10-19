@@ -6,15 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_login"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context=".LoginActivity">
 
     <ImageView
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_marginTop="-25dp"
-        android:layout_marginBottom="75dp"
+        android:layout_marginVertical="40dp"
         android:contentDescription="LOGO"
         android:src="@drawable/logo"
         tools:ignore="HardcodedText" />
@@ -23,49 +22,140 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="25dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical">
 
-        <com.hbb20.CountryCodePicker
-            android:id="@+id/ccp_country"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:ccpDialog_background="@drawable/bg_rounded"
-            app:ccpDialog_showFastScroller="false"
-            app:ccp_defaultPhoneCode="84"
-            app:ccp_showNameCode="false" />
-
-        <EditText
-            android:id="@+id/edt_phone"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints=""
+            android:layout_marginBottom="50dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/iv_login_phone"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="25dp"
+                android:alpha="0.8"
+                android:contentDescription="PHONE_LOGIN"
+                android:src="@drawable/icon_phone_active"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/iv_login_email"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:alpha="0.8"
+                android:contentDescription="EMAIL_LOGIN"
+                android:src="@drawable/icon_email"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_login_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp_country"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:ccpDialog_background="@drawable/bg_rounded"
+                app:ccpDialog_showFastScroller="false"
+                app:ccp_defaultPhoneCode="84"
+                app:ccp_showNameCode="false" />
+
+            <EditText
+                android:id="@+id/edt_phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:background="@drawable/bg_rounded"
+                android:fontFamily="@font/bree_serif_regular"
+                android:inputType="phone"
+                android:letterSpacing="0.1"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="20dp"
+                android:textSize="16sp"
+                tools:ignore="LabelFor" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_login_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/edt_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:autofillHints=""
+                android:background="@drawable/bg_rounded"
+                android:drawableStart="@drawable/icon_field_email"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/bree_serif_regular"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:letterSpacing="0.075"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="20dp"
+                android:textSize="14sp"
+                tools:ignore="HardcodedText,LabelFor" />
+
+            <EditText
+                android:id="@+id/edt_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints=""
+                android:background="@drawable/bg_rounded"
+                android:drawableStart="@drawable/icon_field_password"
+                android:drawableEnd="@drawable/icon_field_hidden"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/bree_serif_regular"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:letterSpacing="0.075"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="20dp"
+                android:textSize="14sp"
+                tools:ignore="HardcodedText,LabelFor" />
+
+            <TextView
+                android:id="@+id/tv_signup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bree_serif_regular"
+                android:paddingVertical="10dp"
+                android:text="Signup Account?"
+                android:textAlignment="textEnd"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:alpha="0.5"
             android:background="@drawable/bg_rounded"
+            android:enabled="false"
             android:fontFamily="@font/bree_serif_regular"
-            android:inputType="phone"
             android:letterSpacing="0.1"
-            android:paddingHorizontal="25dp"
-            android:paddingVertical="20dp"
-            android:textSize="16sp"
-            tools:ignore="LabelFor" />
+            android:paddingVertical="15dp"
+            android:text="LOGIN"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            app:backgroundTint="@color/orange"
+            tools:ignore="HardcodedText" />
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_login"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="25dp"
-        android:layout_marginTop="30dp"
-        android:alpha="0.5"
-        android:background="@drawable/bg_rounded"
-        android:enabled="false"
-        android:fontFamily="@font/bree_serif_regular"
-        android:letterSpacing="0.1"
-        android:paddingVertical="15dp"
-        android:text="LOGIN"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        app:backgroundTint="@color/orange"
-        tools:ignore="HardcodedText" />
 
 </LinearLayout>
