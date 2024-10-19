@@ -30,8 +30,9 @@ import java.util.concurrent.TimeUnit;
 
 public class OTPUtils {
     private final Activity activity;
-    private final CountryCodePicker ccpCountry;
     private final FirebaseAuth mAuth;
+    private final LoadingUtils loadingUtils;
+    private final CountryCodePicker ccpCountry;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mForceResendingToken;
 
@@ -39,9 +40,11 @@ public class OTPUtils {
         this.mAuth = FirebaseAuth.getInstance();
         this.activity = activity;
         this.ccpCountry = ccpCountry;
+        this.loadingUtils = new LoadingUtils(activity);
     }
 
     public void sendOTP() {
+        loadingUtils.showLoadingDialog();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
                         .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
@@ -55,12 +58,14 @@ public class OTPUtils {
 
                             @Override
                             public void onVerificationFailed(@NonNull FirebaseException e) {
+                                loadingUtils.hideLoadingDialog();
                                 Toast.makeText(activity, "VERIFICATION FAILED", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                                 super.onCodeSent(verificationId, forceResendingToken);
+                                loadingUtils.hideLoadingDialog();
                                 mVerificationId = verificationId;
                                 showOTPDialog();
                             }
@@ -72,6 +77,7 @@ public class OTPUtils {
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(activity, task -> {
+                    loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
                         FirebaseUser user = task.getResult().getUser();
                         if (user != null) {
@@ -137,6 +143,7 @@ public class OTPUtils {
     }
 
     private void resendOTP() {
+        loadingUtils.showLoadingDialog();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
                         .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
@@ -151,12 +158,14 @@ public class OTPUtils {
 
                             @Override
                             public void onVerificationFailed(@NonNull FirebaseException e) {
+                                loadingUtils.hideLoadingDialog();
                                 Toast.makeText(activity, "VERIFICATION FAILED", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                                 super.onCodeSent(verificationId, forceResendingToken);
+                                loadingUtils.hideLoadingDialog();
                                 mVerificationId = verificationId;
                                 mForceResendingToken = forceResendingToken;
                             }
@@ -166,6 +175,7 @@ public class OTPUtils {
     }
 
     private void verifyOTP(String OTPCode) {
+        loadingUtils.hideLoadingDialog();
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, OTPCode);
         signInWithPhoneAuthCredential(credential);
     }

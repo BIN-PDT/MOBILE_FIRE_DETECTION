@@ -24,10 +24,12 @@ import com.study.firedetection.R;
 public class SignUpUtils {
     private final Activity activity;
     private final FirebaseAuth mAuth;
+    private final LoadingUtils loadingUtils;
 
     public SignUpUtils(Activity activity) {
         this.activity = activity;
         this.mAuth = FirebaseAuth.getInstance();
+        this.loadingUtils = new LoadingUtils(activity);
     }
 
     public void showSignUpDialog() {
@@ -95,11 +97,11 @@ public class SignUpUtils {
         if (isHidden) {
             edtPassword.setTransformationMethod(new PasswordTransformationMethod());
             edtPassword.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-            edtPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.icon_field_password, 0, R.drawable.icon_field_hidden, 0);
+            edtPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.icon_field_hidden, 0);
         } else {
             edtPassword.setTransformationMethod(null);
             edtPassword.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-            edtPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.icon_field_password, 0, R.drawable.icon_field_shown, 0);
+            edtPassword.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.icon_field_shown, 0);
         }
         edtPassword.setTypeface(ResourcesCompat.getFont(activity, R.font.bree_serif_regular));
         edtPassword.setSelection(edtPassword.getText().length());
@@ -107,8 +109,10 @@ public class SignUpUtils {
     }
 
     private void signUpAccount(String email, String password) {
+        loadingUtils.showLoadingDialog();
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, task -> {
+                    loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {

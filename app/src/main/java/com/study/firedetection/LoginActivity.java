@@ -65,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         this.edtPassword = findViewById(R.id.edt_password);
         this.tvSignUp = findViewById(R.id.tv_signup);
         this.btnLogin = findViewById(R.id.btn_login);
+
         this.otpUtils = new OTPUtils(this, this.ccpCountry);
         this.signUpUtils = new SignUpUtils(this);
     }
