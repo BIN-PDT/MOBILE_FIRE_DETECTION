@@ -18,7 +18,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.study.firedetection.MainActivity;
+import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 
 public class SignUpUtils {
@@ -54,7 +54,7 @@ public class SignUpUtils {
         btnConfirm.setOnClickListener(v -> {
             String email = edtEmail.getText().toString().trim();
             if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(activity, "INVALID EMAIL", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "INVALID EMAIL ADDRESS", Toast.LENGTH_SHORT).show();
                 edtEmail.requestFocus();
                 return;
             }
@@ -116,18 +116,15 @@ public class SignUpUtils {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            this.login(user.getEmail());
+                            Intent intent = new Intent(activity, HomeActivity.class);
+                            activity.startActivity(intent);
+                            activity.finish();
+                        } else {
+                            Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Toast.makeText(activity, "AUTHENTICATION FAILED", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    private void login(String email) {
-        Intent intent = new Intent(activity, MainActivity.class);
-        intent.putExtra("userID", email);
-        activity.startActivity(intent);
-        activity.finish();
     }
 }

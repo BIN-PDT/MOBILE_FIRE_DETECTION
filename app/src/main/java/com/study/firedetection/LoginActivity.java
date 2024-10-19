@@ -1,6 +1,7 @@
 package com.study.firedetection;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +23,10 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.core.splashscreen.SplashScreenViewProvider;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
+import com.study.firedetection.utils.LoadingUtils;
 import com.study.firedetection.utils.OTPUtils;
 import com.study.firedetection.utils.SignUpUtils;
 
@@ -35,6 +40,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private OTPUtils otpUtils;
     private SignUpUtils signUpUtils;
+    private LoadingUtils loadingUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +49,18 @@ public class LoginActivity extends AppCompatActivity {
         splashScreen.setOnExitAnimationListener(new SplashScreen.OnExitAnimationListener() {
             @Override
             public void onSplashScreenExit(@NonNull SplashScreenViewProvider splashScreenViewProvider) {
-                new Handler().postDelayed(() -> {
-                    splashScreenViewProvider.remove();
-                    findViewById(R.id.layout_main).startAnimation(AnimationUtils.loadAnimation(LoginActivity.this, R.anim.entrance));
-                }, 2000);
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    new Handler().postDelayed(() -> {
+                        splashScreenViewProvider.remove();
+                        findViewById(R.id.layout_main).startAnimation(AnimationUtils.loadAnimation(LoginActivity.this, R.anim.entrance));
+
+                    }, 2000);
+                }
             }
         });
         setContentView(R.layout.activity_login);
@@ -66,27 +80,15 @@ public class LoginActivity extends AppCompatActivity {
         this.tvSignUp = findViewById(R.id.tv_signup);
         this.btnLogin = findViewById(R.id.btn_login);
 
-        this.otpUtils = new OTPUtils(this, this.ccpCountry);
+        this.otpUtils = new OTPUtils(this);
         this.signUpUtils = new SignUpUtils(this);
+        this.loadingUtils = new LoadingUtils(this);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private void onEvent() {
+        // PHONE NUMBER AUTHENTICATION.
         this.ivLoginPhone.setOnClickListener(v -> this.updateLoginLayout(true));
-        this.ivLoginEmail.setOnClickListener(v -> this.updateLoginLayout(false));
-        this.edtPassword.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                int drawableRightPosition = this.edtPassword.getRight() - this.edtPassword.getCompoundPaddingRight();
-
-                if (event.getRawX() >= drawableRightPosition) {
-                    boolean isHidden = this.edtPassword.getInputType() != InputType.TYPE_TEXT_VARIATION_PASSWORD;
-                    this.updatePasswordField(isHidden);
-                    return true;
-                }
-            }
-            return false;
-        });
-
         this.ccpCountry.setTypeFace(ResourcesCompat.getFont(this, R.font.bree_serif_regular));
         this.ccpCountry.setCustomDialogTextProvider(new CountryCodePicker.CustomDialogTextProvider() {
             @Override
@@ -107,22 +109,25 @@ public class LoginActivity extends AppCompatActivity {
         this.ccpCountry.registerCarrierNumberEditText(this.edtPhone);
         this.ccpCountry.setPhoneNumberValidityChangeListener(isValidNumber -> {
             int color = ContextCompat.getColor(this, isValidNumber ? R.color.green : R.color.red);
-            float alpha = isValidNumber ? 1 : 0.5f;
             this.edtPhone.setTextColor(color);
-            this.btnLogin.setAlpha(alpha);
-            this.btnLogin.setEnabled(isValidNumber);
         });
+        // EMAIL & PASSWORD AUTHENTICATION.
+        this.ivLoginEmail.setOnClickListener(v -> this.updateLoginLayout(false));
+        this.edtPassword.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                int drawableRightPosition = this.edtPassword.getRight() - this.edtPassword.getCompoundPaddingRight();
 
+                if (event.getRawX() >= drawableRightPosition) {
+                    boolean isHidden = this.edtPassword.getInputType() != InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                    this.updatePasswordField(isHidden);
+                    return true;
+                }
+            }
+            return false;
+        });
         this.tvSignUp.setOnClickListener(v -> this.signUpUtils.showSignUpDialog());
+        // LOGIN.
         this.btnLogin.setOnClickListener(v -> this.login());
-    }
-
-    private void login() {
-        if (this.mUsePhoneAuth) {
-            this.otpUtils.sendOTP();
-        } else {
-
-        }
     }
 
     private void updateLoginLayout(boolean isPhoneAuth) {
@@ -146,9 +151,6 @@ public class LoginActivity extends AppCompatActivity {
             this.layoutLoginPhone.setVisibility(View.GONE);
             this.layoutLoginEmail.setVisibility(View.VISIBLE);
         }
-        float alpha = isPhoneAuth ? 0.5f : 1;
-        this.btnLogin.setAlpha(alpha);
-        this.btnLogin.setEnabled(!isPhoneAuth);
     }
 
     private void updatePasswordField(boolean isHidden) {
@@ -164,5 +166,57 @@ public class LoginActivity extends AppCompatActivity {
         this.edtPassword.setTypeface(ResourcesCompat.getFont(this, R.font.bree_serif_regular));
         this.edtPassword.setSelection(this.edtPassword.getText().length());
         this.edtPassword.requestFocus();
+    }
+
+    private void login() {
+        // PHONE NUMBER AUTHENTICATION.
+        if (this.mUsePhoneAuth) {
+            if (!this.ccpCountry.isValidFullNumber()) {
+                Toast.makeText(this, "INVALID PHONE NUMBER", Toast.LENGTH_SHORT).show();
+                this.ccpCountry.requestFocus();
+                return;
+            }
+
+            String phoneNumber = this.ccpCountry.getFullNumberWithPlus();
+            this.otpUtils.sendOTP(phoneNumber);
+        }
+        // EMAIL & PASSWORD AUTHENTICATION.
+        else {
+            String email = this.edtEmail.getText().toString().trim();
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "INVALID EMAIL ADDRESS", Toast.LENGTH_SHORT).show();
+                edtEmail.requestFocus();
+                return;
+            }
+
+            String password = this.edtPassword.getText().toString().trim();
+            if (password.isEmpty()) {
+                Toast.makeText(this, "PASSWORD CAN'T BE EMPTY", Toast.LENGTH_SHORT).show();
+                edtPassword.requestFocus();
+                return;
+            }
+
+            this.signInWithEmailAndPassword(email, password);
+        }
+    }
+
+    private void signInWithEmailAndPassword(String email, String password) {
+        this.loadingUtils.showLoadingDialog();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            this.loadingUtils.hideLoadingDialog();
+            if (task.isSuccessful()) {
+                FirebaseUser user = mAuth.getCurrentUser();
+                if (user != null) {
+                    Intent intent = new Intent(this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(this, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "AUTHENTICATION FAILED", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

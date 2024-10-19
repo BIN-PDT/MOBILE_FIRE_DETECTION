@@ -22,8 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.hbb20.CountryCodePicker;
-import com.study.firedetection.MainActivity;
+import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 
 import java.util.concurrent.TimeUnit;
@@ -32,22 +31,23 @@ public class OTPUtils {
     private final Activity activity;
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
-    private final CountryCodePicker ccpCountry;
+    private String mPhoneNumber;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mForceResendingToken;
 
-    public OTPUtils(Activity activity, CountryCodePicker ccpCountry) {
+    public OTPUtils(Activity activity) {
         this.mAuth = FirebaseAuth.getInstance();
         this.activity = activity;
-        this.ccpCountry = ccpCountry;
         this.loadingUtils = new LoadingUtils(activity);
     }
 
-    public void sendOTP() {
+    public void sendOTP(String phoneNumber) {
+        mPhoneNumber = phoneNumber;
         loadingUtils.showLoadingDialog();
+
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
+                        .setPhoneNumber(phoneNumber)
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
@@ -72,32 +72,6 @@ public class OTPUtils {
                         })
                         .build();
         PhoneAuthProvider.verifyPhoneNumber(options);
-    }
-
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(activity, task -> {
-                    loadingUtils.hideLoadingDialog();
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = task.getResult().getUser();
-                        if (user != null) {
-                            login(user.getPhoneNumber());
-                        } else {
-                            Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
-                            Toast.makeText(activity, "INVALID VERIFICATION CODE", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void login(String phoneNumber) {
-        Intent intent = new Intent(activity, MainActivity.class);
-        intent.putExtra("userID", phoneNumber);
-        activity.startActivity(intent);
-        activity.finish();
     }
 
     private void showOTPDialog() {
@@ -146,7 +120,7 @@ public class OTPUtils {
         loadingUtils.showLoadingDialog();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(ccpCountry.getFullNumberWithPlus())
+                        .setPhoneNumber(mPhoneNumber)
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
                         .setForceResendingToken(mForceResendingToken)
@@ -175,9 +149,30 @@ public class OTPUtils {
     }
 
     private void verifyOTP(String OTPCode) {
-        loadingUtils.hideLoadingDialog();
+        loadingUtils.showLoadingDialog();
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, OTPCode);
         signInWithPhoneAuthCredential(credential);
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(activity, task -> {
+                    loadingUtils.hideLoadingDialog();
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = task.getResult().getUser();
+                        if (user != null) {
+                            Intent intent = new Intent(activity, HomeActivity.class);
+                            activity.startActivity(intent);
+                            activity.finish();
+                        } else {
+                            Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(activity, "INVALID VERIFICATION CODE", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private static class OTPKeyListener implements View.OnKeyListener {
