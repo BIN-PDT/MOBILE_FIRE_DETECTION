@@ -113,6 +113,10 @@ public class OTPUtils {
         btnConfirm.setOnClickListener(v -> {
             String OTPCode = edtOTP1.getText().toString() + edtOTP2.getText().toString() + edtOTP3.getText().toString()
                     + edtOTP4.getText().toString() + edtOTP5.getText().toString() + edtOTP6.getText().toString();
+            if (OTPCode.length() != 6) {
+                Toast.makeText(activity, "INVALID OTP", Toast.LENGTH_SHORT).show();
+            }
+
             verifyOTP(OTPCode);
         });
     }
