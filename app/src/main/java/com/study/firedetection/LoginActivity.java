@@ -26,6 +26,7 @@ import androidx.core.splashscreen.SplashScreenViewProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
+import com.study.firedetection.utils.ForgotUtils;
 import com.study.firedetection.utils.LoadingUtils;
 import com.study.firedetection.utils.OTPUtils;
 import com.study.firedetection.utils.SignUpUtils;
@@ -36,9 +37,10 @@ public class LoginActivity extends AppCompatActivity {
     private LinearLayout layoutLoginPhone, layoutLoginEmail;
     private CountryCodePicker ccpCountry;
     private EditText edtPhone, edtEmail, edtPassword;
-    private TextView tvSignUp;
+    private TextView tvForgot, tvSignUp;
     private Button btnLogin;
     private OTPUtils otpUtils;
+    private ForgotUtils forgotUtils;
     private SignUpUtils signUpUtils;
     private LoadingUtils loadingUtils;
 
@@ -77,10 +79,12 @@ public class LoginActivity extends AppCompatActivity {
         this.edtPhone = findViewById(R.id.edt_phone);
         this.edtEmail = findViewById(R.id.edt_email);
         this.edtPassword = findViewById(R.id.edt_password);
+        this.tvForgot = findViewById(R.id.tv_forgot);
         this.tvSignUp = findViewById(R.id.tv_signup);
         this.btnLogin = findViewById(R.id.btn_login);
 
         this.otpUtils = new OTPUtils(this);
+        this.forgotUtils = new ForgotUtils(this);
         this.signUpUtils = new SignUpUtils(this);
         this.loadingUtils = new LoadingUtils(this);
     }
@@ -125,6 +129,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             return false;
         });
+        this.tvForgot.setOnClickListener(v -> this.forgotUtils.showForgotDialog());
         this.tvSignUp.setOnClickListener(v -> this.signUpUtils.showSignUpDialog());
         // LOGIN.
         this.btnLogin.setOnClickListener(v -> this.login());
