@@ -26,11 +26,11 @@ import com.study.firedetection.entity.DeviceItem;
 
 import java.util.List;
 
-public class DeviceRecyclerAdapter extends RecyclerView.Adapter<DeviceRecyclerAdapter.ItemViewHolder> {
+public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecyclerAdapter.ItemViewHolder> {
     private final Context mContext;
     private List<DeviceItem> data;
 
-    public DeviceRecyclerAdapter(Context mContext) {
+    public DevicesRecyclerAdapter(Context mContext) {
         this.mContext = mContext;
     }
 
@@ -67,10 +67,15 @@ public class DeviceRecyclerAdapter extends RecyclerView.Adapter<DeviceRecyclerAd
                     holder.tvName.setText(item.getName());
                     int onlineId = item.isOnline() ? R.drawable.icon_online : R.drawable.icon_offline;
                     holder.ivState.setImageDrawable(ContextCompat.getDrawable(mContext, onlineId));
-                    int detectId = item.isDetect() ? R.drawable.icon_fire : R.drawable.icon_none;
-                    holder.ivDetect.setImageDrawable(ContextCompat.getDrawable(mContext, detectId));
-                    int statusId = item.isDetect() ? R.drawable.bg_fire : R.drawable.bg_none;
-                    holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, statusId));
+                    if (item.isOnline()) {
+                        int detectId = item.isDetect() ? R.drawable.icon_fire : R.drawable.icon_none;
+                        holder.ivDetect.setImageDrawable(ContextCompat.getDrawable(mContext, detectId));
+                        int statusId = item.isDetect() ? R.drawable.bg_fire : R.drawable.bg_none;
+                        holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, statusId));
+                    } else {
+                        holder.ivDetect.setImageDrawable(null);
+                        holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bg_offline));
+                    }
 
                     holder.loadingStatus.setVisibility(View.GONE);
                 }
@@ -84,6 +89,7 @@ public class DeviceRecyclerAdapter extends RecyclerView.Adapter<DeviceRecyclerAd
         holder.tvName.setOnClickListener(v -> {
             Intent intent = new Intent(this.mContext, DeviceActivity.class);
             intent.putExtra("deviceId", item.getId());
+            intent.putExtra("deviceName", item.getName());
             mContext.startActivity(intent);
         });
     }

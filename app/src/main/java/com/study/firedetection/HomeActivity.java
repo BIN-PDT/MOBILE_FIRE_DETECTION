@@ -19,11 +19,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.study.firedetection.adapter.ViewPagerAdapter;
+import com.study.firedetection.adapter.HomePagerAdapter;
 
 public class HomeActivity extends AppCompatActivity {
-    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     public static String USER_ID;
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private BottomNavigationView bottomNavigation;
     private ViewPager2 viewPager;
 
@@ -92,7 +92,7 @@ public class HomeActivity extends AppCompatActivity {
         this.bottomNavigation = findViewById(R.id.bottom_navigation);
         // DISPLAY LAYOUT.
         this.viewPager = findViewById(R.id.view_pager);
-        this.viewPager.setAdapter(new ViewPagerAdapter(this));
+        this.viewPager.setAdapter(new HomePagerAdapter(this));
     }
 
     private void onEvent() {

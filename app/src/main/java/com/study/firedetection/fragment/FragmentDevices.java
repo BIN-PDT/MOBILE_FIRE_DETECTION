@@ -16,7 +16,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
-import com.study.firedetection.adapter.DeviceRecyclerAdapter;
+import com.study.firedetection.adapter.DevicesRecyclerAdapter;
 import com.study.firedetection.entity.DeviceItem;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ import java.util.List;
 
 public class FragmentDevices extends Fragment {
     private ImageView ivAddDevice;
-    private DeviceRecyclerAdapter deviceRecyclerAdapter;
+    private DevicesRecyclerAdapter devicesRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,10 +41,11 @@ public class FragmentDevices extends Fragment {
     private void onReady(View view) {
         this.ivAddDevice = view.findViewById(R.id.iv_add_device);
         // DEVICES LAYOUT.
-        this.deviceRecyclerAdapter = new DeviceRecyclerAdapter(getContext());
+        this.devicesRecyclerAdapter = new DevicesRecyclerAdapter(getContext());
         RecyclerView rvDevices = view.findViewById(R.id.rv_devices);
-        rvDevices.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
-        rvDevices.setAdapter(this.deviceRecyclerAdapter);
+        rvDevices.setLayoutManager(new LinearLayoutManager(
+                getContext(), LinearLayoutManager.VERTICAL, false));
+        rvDevices.setAdapter(this.devicesRecyclerAdapter);
     }
 
     private void onEvent() {
@@ -63,7 +64,7 @@ public class FragmentDevices extends Fragment {
                     item.setId(device.getKey());
                     data.add(item);
                 });
-                this.deviceRecyclerAdapter.setData(data);
+                this.devicesRecyclerAdapter.setData(data);
             }
         });
     }

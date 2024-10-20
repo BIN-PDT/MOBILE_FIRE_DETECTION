@@ -5,11 +5,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.study.firedetection.fragment.FragmentAccount;
-import com.study.firedetection.fragment.FragmentDevices;
+import com.study.firedetection.fragment.FragmentHistory;
+import com.study.firedetection.fragment.FragmentToday;
 
-public class ViewPagerAdapter extends FragmentStateAdapter {
-    public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+public class DevicePagerAdapter extends FragmentStateAdapter {
+    public DevicePagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
 
@@ -17,9 +17,9 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @Override
     public Fragment createFragment(int position) {
         if (position == 0) {
-            return new FragmentDevices();
+            return new FragmentToday();
         } else {
-            return new FragmentAccount();
+            return new FragmentHistory();
         }
     }
 

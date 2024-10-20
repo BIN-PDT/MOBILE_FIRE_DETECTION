@@ -2,11 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".HomeActivity">
+    tools:context=".DeviceActivity">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
@@ -29,6 +27,6 @@
         app:itemTextAppearanceActiveBoldEnabled="false"
         app:itemTextAppearanceInactive="@style/BottomNavigationTextAppearance"
         app:itemTextColor="@color/color_bottom_navigation"
-        app:menu="@menu/menu_home_navigation" />
+        app:menu="@menu/menu_device_navigation" />
 
 </RelativeLayout>

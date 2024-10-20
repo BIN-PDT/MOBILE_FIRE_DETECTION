@@ -10,6 +10,9 @@ import java.util.Date;
 public class DateUtils {
     private static final SimpleDateFormat DATE_FORMAT_1 = new SimpleDateFormat("dd/MM/yyyy");
     private static final SimpleDateFormat DATE_FORMAT_2 = new SimpleDateFormat("yyyy-MM-dd");
+    public static final Date CURRENT_DATE = DateUtils.getDate(new Date());
+    public static final String CURRENT_DATE_TEXT_1 = DateUtils.format(CURRENT_DATE);
+    public static final String CURRENT_DATE_TEXT_2 = DateUtils.format2(CURRENT_DATE);
 
     public static Date getDate(Date date) {
         Date datePart = parse(format(date));

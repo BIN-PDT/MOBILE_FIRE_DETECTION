@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_today"
+        android:icon="@drawable/icon_today"
+        android:title="TODAY"
+        tools:ignore="HardcodedText" />
+    <item
+        android:id="@+id/action_history"
+        android:icon="@drawable/icon_history"
+        android:title="HISTORY"
+        tools:ignore="HardcodedText" />
+</menu>
