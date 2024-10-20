@@ -1,15 +1,16 @@
 package com.study.firedetection;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.study.firedetection.adapter.ViewPagerAdapter;
 
 public class HomeActivity extends AppCompatActivity {
-    private Button btnLogout;
+    private BottomNavigationView bottomNavigation;
+    private ViewPager2 viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,15 +21,27 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void onReady() {
-        this.btnLogout = findViewById(R.id.btn_logout);
+        this.bottomNavigation = findViewById(R.id.bottom_navigation);
+        // DISPLAY LAYOUT.
+        this.viewPager = findViewById(R.id.view_pager);
+        this.viewPager.setAdapter(new ViewPagerAdapter(this));
     }
 
     private void onEvent() {
-        this.btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
+        this.bottomNavigation.setOnItemSelectedListener(item -> {
+            int itemID = item.getItemId() == R.id.action_devices ? 0 : 1;
+            this.viewPager.setCurrentItem(itemID);
+            return true;
+        });
+
+        this.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+
+                int itemID = position == 0 ? R.id.action_devices : R.id.action_account;
+                bottomNavigation.getMenu().findItem(itemID).setChecked(true);
+            }
         });
     }
 }

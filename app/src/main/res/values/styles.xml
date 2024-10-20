@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="BottomNavigationTextAppearance">
+        <item name="android:textSize">10sp</item>
+        <item name="android:letterSpacing">0.075</item>
+        <item name="android:fontFamily">@font/bree_serif_regular</item>
+    </style>
+
+</resources>
