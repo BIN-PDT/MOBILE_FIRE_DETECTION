@@ -1,14 +1,29 @@
 package com.study.firedetection;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.study.firedetection.adapter.ViewPagerAdapter;
 
 public class HomeActivity extends AppCompatActivity {
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
+    public static String USER_ID;
     private BottomNavigationView bottomNavigation;
     private ViewPager2 viewPager;
 
@@ -16,8 +31,61 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        this.requestPermission();
+        this.loadUserData();
         this.onReady();
         this.onEvent();
+    }
+
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                this.createNotificationChannel();
+            }
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            String channel_id = getString(R.string.channel_id);
+
+            if (notificationManager.getNotificationChannel(channel_id) == null) {
+                String name = getString(R.string.channel_name);
+                String description = getString(R.string.channel_description);
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+
+                NotificationChannel channel = new NotificationChannel(channel_id, name, importance);
+                channel.setDescription(description);
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    private void loadUserData() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            USER_ID = user.getUid();
+
+            FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String devicesPath = String.format("users/%s/token", HomeActivity.USER_ID);
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference tokenRef = database.getReference(devicesPath);
+                    tokenRef.setValue(task.getResult());
+                }
+            });
+        }
     }
 
     private void onReady() {

@@ -1,13 +1,8 @@
 package com.study.firedetection;
 
-import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -17,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.study.firedetection.adapter.HistoryRecyclerAdapter;
 import com.study.firedetection.entity.HistoryItem;
@@ -38,11 +33,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity {
-    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
+public class DeviceActivity extends AppCompatActivity {
+    private String DEVICE_ID;
+    private final Map<DatabaseReference, ValueEventListener> events = new HashMap<>();
     private final Date CURRENT_DATE = DateUtils.getDate(new Date());
     private final Date selectedDate = new Date(this.CURRENT_DATE.getTime());
     private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
@@ -57,33 +55,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        this.createNotificationChannel();
-        this.requestPermission();
+        this.getIntentData();
         this.onReady();
         this.onEvent();
     }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channel_id = getString(R.string.channel_id);
-            String name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-
-            NotificationChannel channel = new NotificationChannel(channel_id, name, importance);
-            channel.setDescription(description);
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-    private void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
-            }
-        }
+    private void getIntentData() {
+        this.DEVICE_ID = getIntent().getStringExtra("deviceId");
     }
 
     private void onReady() {
@@ -131,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             calendar.setTime(this.selectedDate);
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(
-                    MainActivity.this,
+                    DeviceActivity.this,
                     (view, year, month, dayOfMonth) -> {
                         calendar.set(year, month, dayOfMonth);
                         this.selectedDate.setTime(calendar.getTimeInMillis());
@@ -141,9 +119,10 @@ public class MainActivity extends AppCompatActivity {
             datePickerDialog.show();
         });
         // FIREBASE EVENT.
+        String detectedPath = String.format("devices/%s/detect", this.DEVICE_ID);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference detectedRef = database.getReference("detected");
-        detectedRef.addValueEventListener(new ValueEventListener() {
+        DatabaseReference detectRef = database.getReference(detectedPath);
+        ValueEventListener detectListener = detectRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Boolean detected = snapshot.getValue(Boolean.class);
@@ -152,53 +131,48 @@ public class MainActivity extends AppCompatActivity {
 
                 if (!flagReady) {
                     flagReady = true;
-                    String capturedPath = String.format("captured/%s", DateUtils.format2(selectedDate));
+                    String capturedPath = String.format("devices/%s/captured/%s",
+                            DEVICE_ID, DateUtils.format2(selectedDate));
                     DatabaseReference capturedRef = database.getReference(capturedPath);
-                    capturedRef.limitToLast(1).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (flagDetected && snapshot.exists()) {
-                                LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
-                                DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
+                    ValueEventListener capturedListener = capturedRef.limitToLast(1)
+                            .addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    // UPDATE DETECT LAYOUT.
+                                    if (flagDetected && snapshot.exists()) {
+                                        LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
+                                        DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
 
-                                int index = 0;
-                                for (DataSnapshot childNode : lastCapture.getChildren()) {
-                                    String imageURL = childNode.getValue(String.class);
-                                    ImageView captureContainer = LIST_CONTAINER.get(index);
+                                        int index = 0;
+                                        for (DataSnapshot childNode : lastCapture.getChildren()) {
+                                            String imageURL = childNode.getValue(String.class);
+                                            ImageView captureContainer = LIST_CONTAINER.get(index);
 
-                                    Glide.with(MainActivity.this)
-                                            .load(imageURL)
-                                            .apply(new RequestOptions().transform(new RoundedCorners(20)))
-                                            .into(captureContainer);
-                                    captureContainer.setOnClickListener(v -> {
-                                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                                        Uri imageUri = Uri.parse(imageURL);
-                                        intent.setDataAndType(imageUri, "image/*");
-                                        if (intent.resolveActivity(getPackageManager()) != null) {
-                                            startActivity(intent);
+                                            Glide.with(DeviceActivity.this)
+                                                    .load(imageURL)
+                                                    .apply(new RequestOptions().transform(new RoundedCorners(20)))
+                                                    .into(captureContainer);
+                                            captureContainer.setOnClickListener(v -> {
+                                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                                Uri imageUri = Uri.parse(imageURL);
+                                                intent.setDataAndType(imageUri, "image/*");
+                                                if (intent.resolveActivity(getPackageManager()) != null) {
+                                                    startActivity(intent);
+                                                }
+                                            });
+                                            index++;
                                         }
-                                    });
-                                    index++;
+                                    }
+                                    // UPDATE HISTORY LAYOUT.
+                                    filterHistory();
                                 }
-                            }
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-                    });
-                    capturedRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            filterHistory();
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                                }
+                            });
+                    events.put(capturedRef, capturedListener);
                 }
             }
 
@@ -207,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        this.events.put(detectRef, detectListener);
     }
 
     private void changeLayout(boolean detected) {
@@ -236,7 +211,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void filterHistory() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        String capturedPath = String.format("captured/%s", DateUtils.format2(this.selectedDate));
+        String capturedPath = String.format("devices/%s/captured/%s",
+                this.DEVICE_ID, DateUtils.format2(this.selectedDate));
         DatabaseReference capturedRef = database.getReference(capturedPath);
         capturedRef.get().addOnCompleteListener(task -> {
             List<HistoryItem> listItem = new ArrayList<>();
@@ -252,5 +228,11 @@ public class MainActivity extends AppCompatActivity {
             Collections.reverse(listItem);
             historyRecyclerAdapter.setData(listItem);
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.events.forEach(Query::removeEventListener);
     }
 }
