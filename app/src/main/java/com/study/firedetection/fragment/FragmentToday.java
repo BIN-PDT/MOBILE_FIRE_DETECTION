@@ -115,8 +115,10 @@ public class FragmentToday extends Fragment {
                         .addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
-                                updateHistory(lastCapture);
+                                if (snapshot.exists()) {
+                                    DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
+                                    updateHistory(lastCapture);
+                                }
                             }
 
                             @Override
