@@ -14,8 +14,12 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.study.firedetection.LoginActivity;
 import com.study.firedetection.R;
 
+import java.util.Map;
+
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    public static final String NOTIFICATION_INTENT_ACTION = "DEVICE_VIEW";
+
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
@@ -24,19 +28,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage message) {
         super.onMessageReceived(message);
-
-        RemoteMessage.Notification notificationMessage = message.getNotification();
-        if (notificationMessage != null) {
-            String title = notificationMessage.getTitle();
-            String body = notificationMessage.getBody();
-            this.showNotification(title, body);
-        }
+        // SHOW NOTIFICATION.
+        Map<String, String> messageData = message.getData();
+        String title = messageData.get("title");
+        String body = messageData.get("body");
+        String deviceId = messageData.get("device_id");
+        String deviceName = messageData.get("device_name");
+        this.showNotification(title, body, deviceId, deviceName);
     }
 
-    private void showNotification(String title, String body) {
+    private void showNotification(String title, String body, String deviceId, String deviceName) {
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.setAction(NOTIFICATION_INTENT_ACTION);
+        intent.putExtra("deviceId", deviceId);
+        intent.putExtra("deviceName", deviceName);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this, getString(R.string.channel_id))
                 .setContentTitle(title)

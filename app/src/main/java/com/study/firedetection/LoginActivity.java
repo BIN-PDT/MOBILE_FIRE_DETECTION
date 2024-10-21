@@ -26,10 +26,13 @@ import androidx.core.splashscreen.SplashScreenViewProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
+import com.study.firedetection.service.MyFirebaseMessagingService;
 import com.study.firedetection.utils.ForgotUtils;
 import com.study.firedetection.utils.LoadingUtils;
 import com.study.firedetection.utils.OTPUtils;
 import com.study.firedetection.utils.SignUpUtils;
+
+import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
     private boolean mUsePhoneAuth = true;
@@ -52,15 +55,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSplashScreenExit(@NonNull SplashScreenViewProvider splashScreenViewProvider) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
+                if (user != null) onLoginUserEvent();
+                else {
                     new Handler().postDelayed(() -> {
                         splashScreenViewProvider.remove();
-                        findViewById(R.id.layout_main).startAnimation(AnimationUtils.loadAnimation(LoginActivity.this, R.anim.entrance));
-
+                        findViewById(R.id.layout_main).startAnimation(
+                                AnimationUtils.loadAnimation(LoginActivity.this, R.anim.entrance));
                     }, 2000);
                 }
             }
@@ -68,6 +68,22 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         this.onReady();
         this.onEvent();
+    }
+
+    private void onLoginUserEvent() {
+        Intent originalIntent = getIntent();
+        if (!Objects.equals(originalIntent.getAction(), MyFirebaseMessagingService.NOTIFICATION_INTENT_ACTION))
+            startActivity(new Intent(this, HomeActivity.class));
+        else {
+            String deviceId = originalIntent.getStringExtra("deviceId");
+            String deviceName = originalIntent.getStringExtra("deviceName");
+
+            Intent intent = new Intent(this, DeviceActivity.class);
+            intent.putExtra("deviceId", deviceId);
+            intent.putExtra("deviceName", deviceName);
+            startActivity(intent);
+        }
+        finish();
     }
 
     private void onReady() {
