@@ -24,11 +24,12 @@ import com.study.firedetection.DeviceActivity;
 import com.study.firedetection.R;
 import com.study.firedetection.entity.DeviceItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecyclerAdapter.ItemViewHolder> {
     private final Context mContext;
-    private List<DeviceItem> data;
+    private final List<DeviceItem> data = new ArrayList<>();
 
     public DevicesRecyclerAdapter(Context mContext) {
         this.mContext = mContext;
@@ -36,7 +37,8 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
     @SuppressLint("NotifyDataSetChanged")
     public void setData(List<DeviceItem> data) {
-        this.data = data;
+        this.data.clear();
+        this.data.addAll(data);
         notifyDataSetChanged();
     }
 
@@ -96,10 +98,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
     @Override
     public int getItemCount() {
-        if (data != null) {
-            return data.size();
-        }
-        return 0;
+        return this.data.size();
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -110,7 +109,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.loadingStatus = itemView.findViewById(R.id.loading_status);
+            this.loadingStatus = itemView.findViewById(R.id.loading_view);
             this.tvName = itemView.findViewById(R.id.tv_name);
             this.ivState = itemView.findViewById(R.id.iv_online);
             this.ivDetect = itemView.findViewById(R.id.iv_detect);

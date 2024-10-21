@@ -9,20 +9,20 @@
     app:cardElevation="0dp">
 
     <ProgressBar
-        android:id="@+id/loading_status"
+        android:id="@+id/loading_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
         android:elevation="100dp"
-        android:padding="15dp"
+        android:padding="20dp"
         android:progress="0" />
 
     <RelativeLayout
         android:id="@+id/layout_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="20dp"
-        android:paddingVertical="25dp">
+        android:layout_gravity="center"
+        android:paddingHorizontal="20dp">
 
         <ImageView
             android:id="@+id/iv_online"
@@ -42,6 +42,7 @@
             android:layout_toStartOf="@id/iv_detect"
             android:layout_toEndOf="@id/iv_online"
             android:fontFamily="@font/bree_serif_regular"
+            android:paddingVertical="30dp"
             android:textColor="@color/white"
             android:textSize="14sp" />
 

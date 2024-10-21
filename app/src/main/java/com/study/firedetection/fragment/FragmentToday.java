@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,7 +21,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.study.firedetection.DeviceActivity;
 import com.study.firedetection.R;
@@ -30,17 +30,16 @@ import com.study.firedetection.utils.DateUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FragmentToday extends Fragment {
-    private final Map<DatabaseReference, ValueEventListener> FIREBASE_EVENTS = new HashMap<>();
     private Context mContext;
+    private ProgressBar loadingView;
     private RelativeLayout layoutNotifying;
     private ImageView ivBack, ivNotification;
     private TextView tvName, tvDate, tvNotification;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
+    private String lastCaptureTimestamp = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +55,7 @@ public class FragmentToday extends Fragment {
 
     private void onReady(View view) {
         this.mContext = getContext();
+        this.loadingView = view.findViewById(R.id.loading_view);
         this.layoutNotifying = view.findViewById(R.id.layout_notifying);
         this.tvName = view.findViewById(R.id.tv_name);
         this.tvDate = view.findViewById(R.id.tv_date);
@@ -76,7 +76,6 @@ public class FragmentToday extends Fragment {
         this.tvDate.setText(DateUtils.CURRENT_DATE_TEXT_1);
         // FIREBASE EVENT.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-
         String detectedPath = String.format("devices/%s/detect", DeviceActivity.DEVICE_ID);
         DatabaseReference detectRef = database.getReference(detectedPath);
         ValueEventListener detectListener = detectRef.addValueEventListener(new ValueEventListener() {
@@ -91,23 +90,45 @@ public class FragmentToday extends Fragment {
 
             }
         });
-        this.FIREBASE_EVENTS.put(detectRef, detectListener);
+        DeviceActivity.FIREBASE_EVENTS.put(detectRef, detectListener);
 
         String capturedPath = String.format("devices/%s/captured/%s",
                 DeviceActivity.DEVICE_ID, DateUtils.CURRENT_DATE_TEXT_2);
         DatabaseReference capturedRef = database.getReference(capturedPath);
-        ValueEventListener capturedListener = capturedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                updateHistory();
-            }
+        capturedRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // GET DATA.
+                List<HistoryItem> listItem = new ArrayList<>();
+                for (DataSnapshot dataTimestamp : task.getResult().getChildren()) {
+                    String timestamp = dataTimestamp.getKey();
+                    List<String> listURL = new ArrayList<>();
+                    dataTimestamp.getChildren().forEach(dataCapture ->
+                            listURL.add(dataCapture.getValue(String.class)));
+                    listItem.add(new HistoryItem(timestamp, listURL));
+                }
+                // REMOVE LAST ITEM AT FIRST LOADING.
+                if (!listItem.isEmpty()) listItem.remove(listItem.size() - 1);
+                Collections.reverse(listItem);
+                this.historyRecyclerAdapter.loadOriginalData(listItem);
+                // LAST CAPTURE EVENT.
+                ValueEventListener lastCapturedListener = capturedRef.limitToLast(1)
+                        .addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                DataSnapshot lastCapture = snapshot.getChildren().iterator().next();
+                                updateHistory(lastCapture);
+                            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
+                            }
+                        });
+                DeviceActivity.FIREBASE_EVENTS.put(capturedRef, lastCapturedListener);
+                // DISABLE LOADING.
+                this.loadingView.setVisibility(View.GONE);
             }
         });
-        this.FIREBASE_EVENTS.put(capturedRef, capturedListener);
     }
 
     private void changeLayout(boolean detected) {
@@ -126,30 +147,18 @@ public class FragmentToday extends Fragment {
         }
     }
 
-    private void updateHistory() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        String capturedPath = String.format("devices/%s/captured/%s",
-                DeviceActivity.DEVICE_ID, DateUtils.CURRENT_DATE_TEXT_2);
-        DatabaseReference capturedRef = database.getReference(capturedPath);
-        capturedRef.get().addOnCompleteListener(task -> {
-            List<HistoryItem> listItem = new ArrayList<>();
-
-            for (DataSnapshot dataTimestamp : task.getResult().getChildren()) {
-                String timestamp = dataTimestamp.getKey();
-                List<String> listURL = new ArrayList<>();
-                dataTimestamp.getChildren().forEach(dataCapture ->
-                        listURL.add(dataCapture.getValue(String.class)));
-                listItem.add(new HistoryItem(timestamp, listURL));
-            }
-
-            Collections.reverse(listItem);
-            this.historyRecyclerAdapter.setData(listItem);
-        });
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        this.FIREBASE_EVENTS.forEach(Query::removeEventListener);
+    private void updateHistory(DataSnapshot lastCapture) {
+        // GET ITEM.
+        String timestamp = lastCapture.getKey();
+        List<String> listURL = new ArrayList<>();
+        lastCapture.getChildren().forEach(dataCapture ->
+                listURL.add(dataCapture.getValue(String.class)));
+        HistoryItem item = new HistoryItem(timestamp, listURL);
+        // GET DATA.
+        List<HistoryItem> listItem = new ArrayList<>(this.historyRecyclerAdapter.getOriginalData());
+        if (!listItem.isEmpty() && this.lastCaptureTimestamp.equals(timestamp)) listItem.remove(0);
+        else this.lastCaptureTimestamp = timestamp;
+        listItem.add(0, item);
+        this.historyRecyclerAdapter.loadOriginalData(listItem);
     }
 }

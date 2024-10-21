@@ -79,25 +79,33 @@
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layout_notifying"
         android:background="#F5F5F5"
-        android:orientation="vertical"
         android:paddingTop="60dp">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginHorizontal="20dp"
             android:background="@drawable/bg_history"
             android:paddingHorizontal="15dp"
             android:paddingBottom="15dp">
 
         </androidx.recyclerview.widget.RecyclerView>
 
-    </LinearLayout>
+        <ProgressBar
+            android:id="@+id/loading_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="20dp"
+            android:background="@drawable/bg_history"
+            android:padding="125dp"
+            android:progress="0" />
+
+    </RelativeLayout>
 
 </RelativeLayout>

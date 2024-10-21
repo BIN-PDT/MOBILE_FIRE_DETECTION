@@ -24,15 +24,34 @@ import java.util.List;
 
 public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecyclerAdapter.ItemViewHolder> {
     private final Context mContext;
-    private List<HistoryItem> data;
+    private final List<HistoryItem> originalData = new ArrayList<>();
+    private final List<HistoryItem> filteredData = new ArrayList<>();
 
     public HistoryRecyclerAdapter(Context mContext) {
         this.mContext = mContext;
     }
 
+    public List<HistoryItem> getOriginalData() {
+        return originalData;
+    }
+
+    public List<HistoryItem> getFilteredData() {
+        return filteredData;
+    }
+
     @SuppressLint("NotifyDataSetChanged")
-    public void setData(List<HistoryItem> data) {
-        this.data = data;
+    public void loadOriginalData(List<HistoryItem> data) {
+        this.originalData.clear();
+        this.filteredData.clear();
+        this.originalData.addAll(data);
+        this.filteredData.addAll(data);
+        notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void loadFilteredData(List<HistoryItem> data) {
+        this.filteredData.clear();
+        this.filteredData.addAll(data);
         notifyDataSetChanged();
     }
 
@@ -45,13 +64,13 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        HistoryItem item = this.data.get(position);
+        HistoryItem item = this.filteredData.get(position);
         holder.tvTimestamp.setText(item.getTimestamp());
-        holder.LIST_CONTAINER.forEach(container -> container.setImageDrawable(null));
+        holder.listCapture.forEach(container -> container.setImageDrawable(null));
 
         for (int i = 0; i < item.getListCaptureUrl().size(); i++) {
             String captureURL = item.getListCaptureUrl().get(i);
-            ImageView captureContainer = holder.LIST_CONTAINER.get(i);
+            ImageView captureContainer = holder.listCapture.get(i);
 
             Glide.with(this.mContext)
                     .load(captureURL)
@@ -71,22 +90,19 @@ public class HistoryRecyclerAdapter extends RecyclerView.Adapter<HistoryRecycler
 
     @Override
     public int getItemCount() {
-        if (data != null) {
-            return data.size();
-        }
-        return 0;
+        return Math.min(this.originalData.size(), this.filteredData.size());
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvTimestamp;
-        private final List<ImageView> LIST_CONTAINER = new ArrayList<>(3);
+        private final List<ImageView> listCapture = new ArrayList<>(3);
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
             this.tvTimestamp = itemView.findViewById(R.id.tv_timestamp);
-            this.LIST_CONTAINER.add(itemView.findViewById(R.id.iv_capture_1));
-            this.LIST_CONTAINER.add(itemView.findViewById(R.id.iv_capture_2));
-            this.LIST_CONTAINER.add(itemView.findViewById(R.id.iv_capture_3));
+            this.listCapture.add(itemView.findViewById(R.id.iv_capture_1));
+            this.listCapture.add(itemView.findViewById(R.id.iv_capture_2));
+            this.listCapture.add(itemView.findViewById(R.id.iv_capture_3));
         }
     }
 }
