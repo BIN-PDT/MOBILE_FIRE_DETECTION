@@ -37,25 +37,33 @@
         android:orientation="vertical"
         android:padding="15dp">
 
-        <TextView
-            android:id="@+id/tv_user_id"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/sb_user_id"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:breakStrategy="simple"
-            android:fontFamily="@font/bree_serif_regular"
-            android:letterSpacing="0.1"
-            android:padding="5dp"
-            android:textColor="@color/gray"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:layout_alignParentTop="true">
+
+            <TextView
+                android:id="@+id/tv_user_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:breakStrategy="simple"
+                android:fontFamily="@font/bree_serif_regular"
+                android:letterSpacing="0.1"
+                android:maxLines="1"
+                android:padding="5dp"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </HorizontalScrollView>
 
         <TextView
             android:id="@+id/tv_device_quantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_user_id"
-            android:layout_alignStart="@id/tv_user_id"
+            android:layout_below="@id/sb_user_id"
+            android:layout_alignStart="@id/sb_user_id"
             android:fontFamily="@font/bree_serif_regular"
             android:letterSpacing="0.1"
             android:padding="5dp"
