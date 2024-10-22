@@ -51,8 +51,31 @@ public class FragmentAccount extends Fragment {
 
     @SuppressLint("DefaultLocale")
     private void onEvent() {
+        // FIREBASE EVENT.
+        String userPath = String.format("users/%s", HomeActivity.USER_ID);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference(userPath);
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                long quantity = task.getResult().child("devices").getChildrenCount();
+                String quantityString = quantity == 0 ? "No devices" :
+                        quantity == 1 ? "1 device" : String.format("%d devices", quantity);
+                this.tvDeviceQuantity.setText(quantityString);
+            }
+        });
+        // USER IDENTIFIER.
+        boolean usePhoneAuth = false;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
+            if (userEmail != null && !userEmail.isEmpty()) this.tvUserId.setText(userEmail);
+            else {
+                this.tvUserId.setText(userPhone);
+                usePhoneAuth = true;
+            }
+        }
         // CHANGE PASSWORD.
-        if (LoginActivity.IS_PHONE_AUTH) {
+        if (usePhoneAuth) {
             int color = ContextCompat.getColor(this.mContext, R.color.gray);
             this.tvChangePassword.setTextColor(color);
         } else {
@@ -70,26 +93,6 @@ public class FragmentAccount extends Fragment {
         // DELETE ACCOUNT.
         this.tvDeleteAccount.setOnClickListener(v -> {
 
-        });
-        // FIREBASE EVENT.
-        String userPath = String.format("users/%s", HomeActivity.USER_ID);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userRef = database.getReference(userPath);
-        userRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // USER IDENTIFIER.
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
-                    String userId = userPhone != null && !userPhone.isEmpty() ? userPhone : userEmail;
-                    this.tvUserId.setText(userId);
-                }
-                // DEVICE QUANTITY.
-                long quantity = task.getResult().child("devices").getChildrenCount();
-                String quantityString = quantity == 0 ? "No devices" :
-                        quantity == 1 ? "1 device" : String.format("%d devices", quantity);
-                this.tvDeviceQuantity.setText(quantityString);
-            }
         });
     }
 }

@@ -35,7 +35,7 @@ import com.study.firedetection.utils.SignUpUtils;
 import java.util.Objects;
 
 public class LoginActivity extends AppCompatActivity {
-    public static boolean IS_PHONE_AUTH = true;
+    private boolean usePhoneAuth = true;
     private ImageView ivLoginPhone, ivLoginEmail;
     private LinearLayout layoutLoginPhone, layoutLoginEmail;
     private CountryCodePicker ccpCountry;
@@ -152,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void updateLoginLayout(boolean isPhoneAuth) {
-        IS_PHONE_AUTH = isPhoneAuth;
+        usePhoneAuth = isPhoneAuth;
         if (isPhoneAuth) {
             this.edtPhone.setText("");
             this.edtPhone.requestFocus();
@@ -191,7 +191,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login() {
         // PHONE NUMBER AUTHENTICATION.
-        if (IS_PHONE_AUTH) {
+        if (usePhoneAuth) {
             if (!this.ccpCountry.isValidFullNumber()) {
                 Toast.makeText(this, "INVALID PHONE NUMBER", Toast.LENGTH_SHORT).show();
                 this.ccpCountry.requestFocus();
