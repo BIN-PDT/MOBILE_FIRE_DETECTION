@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.study.firedetection.DeviceActivity;
+import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 import com.study.firedetection.entity.DeviceItem;
 
@@ -69,13 +70,14 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         deviceRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                // ENABLE LOADING.
                 holder.loadingStatus.setVisibility(View.VISIBLE);
                 DeviceItem updatedItem = snapshot.getValue(DeviceItem.class);
                 if (updatedItem != null) {
                     item.setName(updatedItem.getName());
                     item.setOnline(updatedItem.isOnline());
                     item.setDetect(updatedItem.isDetect());
-
+                    // INFO LAYOUT.
                     holder.tvName.setText(item.getName());
                     int onlineId = item.isOnline() ? R.drawable.icon_online : R.drawable.icon_offline;
                     holder.ivState.setImageDrawable(ContextCompat.getDrawable(mContext, onlineId));
@@ -88,7 +90,12 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
                         holder.ivDetect.setImageDrawable(null);
                         holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bg_offline));
                     }
-
+                    // TOOL LAYOUT.
+                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
+                    if (Boolean.FALSE.equals(isOwner)) {
+                        holder.layoutTool.setVisibility(View.GONE);
+                    }
+                    // DISABLE LOADING.
                     holder.loadingStatus.setVisibility(View.GONE);
                 }
             }
@@ -115,7 +122,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         private final ProgressBar loadingStatus;
         private final TextView tvName;
         private final ImageView ivState, ivDetect;
-        private final RelativeLayout layoutMain;
+        private final LinearLayout layoutMain, layoutTool;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -124,6 +131,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             this.ivState = itemView.findViewById(R.id.iv_online);
             this.ivDetect = itemView.findViewById(R.id.iv_detect);
             this.layoutMain = itemView.findViewById(R.id.layout_main);
+            this.layoutTool = itemView.findViewById(R.id.layout_tool);
         }
     }
 }

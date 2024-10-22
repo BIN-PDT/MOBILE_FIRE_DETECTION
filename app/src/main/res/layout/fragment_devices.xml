@@ -7,7 +7,7 @@
     tools:context=".fragment.FragmentDevices">
 
     <LinearLayout
-        android:id="@+id/layout_tools"
+        android:id="@+id/layout_tool"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -29,7 +29,7 @@
         android:id="@+id/rv_devices"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_tools"
+        android:layout_below="@id/layout_tool"
         android:paddingHorizontal="20dp"
         android:paddingBottom="20dp" />
 
@@ -37,7 +37,7 @@
         android:id="@+id/loading_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_tools"
+        android:layout_below="@id/layout_tool"
         android:layout_marginHorizontal="20dp"
         android:padding="125dp"
         android:progress="0" />

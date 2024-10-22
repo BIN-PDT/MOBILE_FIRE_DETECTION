@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="20dp"
-    app:cardCornerRadius="15dp"
+    app:cardCornerRadius="10dp"
     app:cardElevation="0dp">
 
     <ProgressBar
@@ -14,47 +14,91 @@
         android:layout_height="match_parent"
         android:background="@color/white"
         android:elevation="100dp"
-        android:padding="20dp"
+        android:padding="25dp"
         android:progress="0" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/layout_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingHorizontal="20dp">
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_online"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="ICON_ONLINE"
-            tools:ignore="HardcodedText" />
-
-        <TextView
-            android:id="@+id/tv_name"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginHorizontal="15dp"
-            android:layout_toStartOf="@id/iv_detect"
-            android:layout_toEndOf="@id/iv_online"
-            android:fontFamily="@font/bree_serif_regular"
-            android:paddingVertical="30dp"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp">
 
-        <ImageView
-            android:id="@+id/iv_detect"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:contentDescription="ICON_DETECT"
-            tools:ignore="HardcodedText" />
+            <ImageView
+                android:id="@+id/iv_online"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="ICON_ONLINE"
+                tools:ignore="HardcodedText" />
 
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginHorizontal="15dp"
+                android:layout_toStartOf="@id/iv_detect"
+                android:layout_toEndOf="@id/iv_online"
+                android:fontFamily="@font/bree_serif_regular"
+                android:paddingVertical="30dp"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/iv_detect"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:contentDescription="ICON_DETECT"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_tool"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_device_tool"
+            android:gravity="end"
+            android:padding="15dp">
+
+            <ImageView
+                android:id="@+id/ivInfo"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="15dp"
+                android:contentDescription="TOOL_INFO"
+                android:src="@drawable/icon_info"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/ivShare"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="15dp"
+                android:contentDescription="TOOL_SHARE"
+                android:src="@drawable/icon_share"
+                tools:ignore="HardcodedText" />
+
+            <ImageView
+                android:id="@+id/ivUnlink"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="TOOL_UNLINK"
+                android:src="@drawable/icon_unlink"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>
