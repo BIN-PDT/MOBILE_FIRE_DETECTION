@@ -29,16 +29,26 @@ import java.util.List;
 
 public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecyclerAdapter.ItemViewHolder> {
     private final Context mContext;
-    private final List<DeviceItem> data = new ArrayList<>();
+    private final List<DeviceItem> originalData = new ArrayList<>();
 
     public DevicesRecyclerAdapter(Context mContext) {
         this.mContext = mContext;
     }
 
+    public List<DeviceItem> getOriginalData() {
+        return originalData;
+    }
+
     @SuppressLint("NotifyDataSetChanged")
-    public void setData(List<DeviceItem> data) {
-        this.data.clear();
-        this.data.addAll(data);
+    public void loadOriginalData(List<DeviceItem> data) {
+        this.originalData.clear();
+        this.originalData.addAll(data);
+        notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void addNewItem(DeviceItem item) {
+        this.originalData.add(item);
         notifyDataSetChanged();
     }
 
@@ -51,7 +61,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        DeviceItem item = this.data.get(position);
+        DeviceItem item = this.originalData.get(position);
 
         String devicePath = String.format("devices/%s", item.getId());
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -98,7 +108,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
     @Override
     public int getItemCount() {
-        return this.data.size();
+        return this.originalData.size();
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {

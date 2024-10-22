@@ -33,4 +33,13 @@
         android:paddingHorizontal="20dp"
         android:paddingBottom="20dp" />
 
+    <ProgressBar
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_tools"
+        android:layout_marginHorizontal="20dp"
+        android:padding="125dp"
+        android:progress="0" />
+
 </RelativeLayout>

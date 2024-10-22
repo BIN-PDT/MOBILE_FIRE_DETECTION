@@ -37,7 +37,7 @@ public class FragmentToday extends Fragment {
     private ProgressBar loadingView;
     private RelativeLayout layoutNotifying;
     private ImageView ivBack, ivNotification;
-    private TextView tvName, tvDate, tvNotification;
+    private TextView tvNotification;
     private HistoryRecyclerAdapter historyRecyclerAdapter;
     private String lastCaptureTimestamp = "";
 
@@ -57,8 +57,6 @@ public class FragmentToday extends Fragment {
         this.mContext = getContext();
         this.loadingView = view.findViewById(R.id.loading_view);
         this.layoutNotifying = view.findViewById(R.id.layout_notifying);
-        this.tvName = view.findViewById(R.id.tv_name);
-        this.tvDate = view.findViewById(R.id.tv_date);
         this.ivBack = view.findViewById(R.id.iv_back);
         this.ivNotification = view.findViewById(R.id.iv_notification);
         this.tvNotification = view.findViewById(R.id.tv_notification);
@@ -72,8 +70,6 @@ public class FragmentToday extends Fragment {
 
     private void onEvent() {
         this.ivBack.setOnClickListener(v -> requireActivity().finish());
-        this.tvName.setText(DeviceActivity.DEVICE_NAME);
-        this.tvDate.setText(DateUtils.CURRENT_DATE_TEXT_1);
         // FIREBASE EVENT.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String detectedPath = String.format("devices/%s/detect", DeviceActivity.DEVICE_ID);
