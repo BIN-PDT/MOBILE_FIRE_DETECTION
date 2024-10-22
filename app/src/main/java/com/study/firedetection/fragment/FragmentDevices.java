@@ -64,16 +64,29 @@ public class FragmentDevices extends Fragment {
     private void onEvent() {
         this.ivAddDevice.setOnClickListener(v -> this.showAddDeviceDialog());
         // FIREBASE EVENT.
-        String devicesPath = String.format("users/%s/devices", HomeActivity.USER_ID);
+        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_ID);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference devicesRef = database.getReference(devicesPath);
-        devicesRef.get().addOnCompleteListener(task -> {
+        DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
+        devicesUserRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<DeviceItem> data = new ArrayList<>();
                 task.getResult().getChildren().forEach(device -> {
-                    DeviceItem item = new DeviceItem();
-                    item.setId(device.getKey());
-                    data.add(item);
+                    String deviceId = device.getKey();
+                    if (deviceId == null) return;
+                    // CHECK BE REMOVED FROM DEVICE.
+                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_ID);
+                    DatabaseReference userDeviceRef = database.getReference(userDevicePath);
+                    userDeviceRef.child(HomeActivity.USER_ID).get().addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            if (task1.getResult().getValue(Boolean.class) == null)
+                                devicesUserRef.child(deviceId).removeValue();
+                            else {
+                                DeviceItem item = new DeviceItem();
+                                item.setId(deviceId);
+                                data.add(item);
+                            }
+                        }
+                    });
                 });
                 this.devicesRecyclerAdapter.loadOriginalData(data);
                 // DISABLE LOADING.

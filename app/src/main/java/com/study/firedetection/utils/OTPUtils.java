@@ -27,18 +27,29 @@ import com.study.firedetection.R;
 
 import java.util.concurrent.TimeUnit;
 
-public class OTPUtils {
+public class OTPUtils implements ConfirmUtils.IOnClickListener {
     private final Activity activity;
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
+    private final ConfirmUtils confirmUtils;
     private String mPhoneNumber;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mForceResendingToken;
+    private boolean useForDeleteAccount = false;
 
     public OTPUtils(Activity activity) {
         this.mAuth = FirebaseAuth.getInstance();
         this.activity = activity;
         this.loadingUtils = new LoadingUtils(activity);
+        this.confirmUtils = new ConfirmUtils(activity, this);
+    }
+
+    public boolean isUseForDeleteAccount() {
+        return useForDeleteAccount;
+    }
+
+    public void setUseForDeleteAccount(boolean useForDeleteAccount) {
+        this.useForDeleteAccount = useForDeleteAccount;
     }
 
     public void sendOTP(String phoneNumber) {
@@ -53,7 +64,8 @@ public class OTPUtils {
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                             @Override
                             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                                signInWithPhoneAuthCredential(phoneAuthCredential);
+                                if (useForDeleteAccount) confirmUtils.showConfirmDialog();
+                                else signInWithPhoneAuthCredential(phoneAuthCredential);
                             }
 
                             @Override
@@ -132,7 +144,8 @@ public class OTPUtils {
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                             @Override
                             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                                signInWithPhoneAuthCredential(phoneAuthCredential);
+                                if (useForDeleteAccount) confirmUtils.showConfirmDialog();
+                                else signInWithPhoneAuthCredential(phoneAuthCredential);
                             }
 
                             @Override
@@ -164,13 +177,16 @@ public class OTPUtils {
                 .addOnCompleteListener(activity, task -> {
                     loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
-                        FirebaseUser user = task.getResult().getUser();
-                        if (user != null) {
-                            Intent intent = new Intent(activity, HomeActivity.class);
-                            activity.startActivity(intent);
-                            activity.finish();
-                        } else {
-                            Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
+                        if (useForDeleteAccount) confirmUtils.showConfirmDialog();
+                        else {
+                            FirebaseUser user = task.getResult().getUser();
+                            if (user != null) {
+                                Intent intent = new Intent(activity, HomeActivity.class);
+                                activity.startActivity(intent);
+                                activity.finish();
+                            } else {
+                                Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     } else {
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
@@ -178,6 +194,11 @@ public class OTPUtils {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void onConfirm() {
+        confirmUtils.confirmDeleteAccount();
     }
 
     private static class OTPKeyListener implements View.OnKeyListener {

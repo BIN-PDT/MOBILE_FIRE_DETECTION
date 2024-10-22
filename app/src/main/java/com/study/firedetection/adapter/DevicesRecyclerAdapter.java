@@ -68,16 +68,35 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference deviceRef = database.getReference(devicePath);
         deviceRef.addValueEventListener(new ValueEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // ENABLE LOADING.
                 holder.loadingStatus.setVisibility(View.VISIBLE);
                 DeviceItem updatedItem = snapshot.getValue(DeviceItem.class);
                 if (updatedItem != null) {
+                    // TOOL LAYOUT.
+                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
+                    if (Boolean.TRUE.equals(isOwner)) {
+                        holder.layoutOwnerTool.setVisibility(View.VISIBLE);
+                        // DEVICE INFORMATION.
+                        holder.ivInfo.setOnClickListener(v -> {
+
+                        });
+                        // DEVICE SHARE.
+                        holder.ivShare.setOnClickListener(v -> {
+
+                        });
+                    }
+                    // DEVICE UNLINK.
+                    holder.ivUnlink.setOnClickListener(v -> {
+
+                    });
+                    // DEVICE INFORMATION.
                     item.setName(updatedItem.getName());
                     item.setOnline(updatedItem.isOnline());
                     item.setDetect(updatedItem.isDetect());
-                    // INFO LAYOUT.
+                    // INFORMATION LAYOUT.
                     holder.tvName.setText(item.getName());
                     int onlineId = item.isOnline() ? R.drawable.icon_online : R.drawable.icon_offline;
                     holder.ivState.setImageDrawable(ContextCompat.getDrawable(mContext, onlineId));
@@ -89,11 +108,6 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
                     } else {
                         holder.ivDetect.setImageDrawable(null);
                         holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bg_offline));
-                    }
-                    // TOOL LAYOUT.
-                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
-                    if (Boolean.FALSE.equals(isOwner)) {
-                        holder.layoutTool.setVisibility(View.GONE);
                     }
                     // DISABLE LOADING.
                     holder.loadingStatus.setVisibility(View.GONE);
@@ -111,18 +125,6 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             intent.putExtra("deviceName", item.getName());
             mContext.startActivity(intent);
         });
-        // DEVICE INFORMATION.
-        holder.ivInfo.setOnClickListener(v -> {
-
-        });
-        // DEVICE SHARE.
-        holder.ivShare.setOnClickListener(v -> {
-
-        });
-        // DEVICE UNLINK.
-        holder.ivUnlink.setOnClickListener(v -> {
-
-        });
     }
 
     @Override
@@ -135,7 +137,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         private final TextView tvName;
         private final ImageView ivState, ivDetect;
         private final ImageView ivInfo, ivShare, ivUnlink;
-        private final LinearLayout layoutMain, layoutTool;
+        private final LinearLayout layoutMain, layoutOwnerTool;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -147,7 +149,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             this.ivShare = itemView.findViewById(R.id.iv_share);
             this.ivUnlink = itemView.findViewById(R.id.iv_unlink);
             this.layoutMain = itemView.findViewById(R.id.layout_main);
-            this.layoutTool = itemView.findViewById(R.id.layout_tool);
+            this.layoutOwnerTool = itemView.findViewById(R.id.layout_owner_tool);
         }
     }
 }

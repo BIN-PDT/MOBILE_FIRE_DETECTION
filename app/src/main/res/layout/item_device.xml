@@ -64,30 +64,37 @@
         </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/layout_tool"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_device_tool"
             android:gravity="end"
             android:padding="15dp">
 
-            <ImageView
-                android:id="@+id/iv_info"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="15dp"
-                android:contentDescription="TOOL_INFO"
-                android:src="@drawable/icon_info"
-                tools:ignore="HardcodedText" />
+            <LinearLayout
+                android:id="@+id/layout_owner_tool"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
-            <ImageView
-                android:id="@+id/iv_share"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="15dp"
-                android:contentDescription="TOOL_SHARE"
-                android:src="@drawable/icon_share"
-                tools:ignore="HardcodedText" />
+                <ImageView
+                    android:id="@+id/iv_info"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="15dp"
+                    android:contentDescription="TOOL_INFO"
+                    android:src="@drawable/icon_info"
+                    tools:ignore="HardcodedText" />
+
+                <ImageView
+                    android:id="@+id/iv_share"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="15dp"
+                    android:contentDescription="TOOL_SHARE"
+                    android:src="@drawable/icon_share"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/iv_unlink"

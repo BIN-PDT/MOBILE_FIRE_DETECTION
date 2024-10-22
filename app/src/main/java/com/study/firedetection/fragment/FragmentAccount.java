@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,11 +20,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.LoginActivity;
 import com.study.firedetection.R;
+import com.study.firedetection.utils.OTPUtils;
+import com.study.firedetection.utils.PasswordUtils;
 
 public class FragmentAccount extends Fragment {
     private Context mContext;
     private TextView tvUserId, tvDeviceQuantity;
     private TextView tvChangePassword, tvLogout, tvDeleteAccount;
+    private PasswordUtils passwordUtils;
+    private OTPUtils otpUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,6 +50,10 @@ public class FragmentAccount extends Fragment {
         this.tvChangePassword = view.findViewById(R.id.tv_change_password);
         this.tvLogout = view.findViewById(R.id.tv_logout);
         this.tvDeleteAccount = view.findViewById(R.id.tv_delete_account);
+
+        this.passwordUtils = new PasswordUtils(getActivity());
+        this.otpUtils = new OTPUtils(getActivity());
+        this.otpUtils.setUseForDeleteAccount(true);
     }
 
     @SuppressLint("DefaultLocale")
@@ -64,35 +71,30 @@ public class FragmentAccount extends Fragment {
             }
         });
         // USER IDENTIFIER.
-        boolean usePhoneAuth = false;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
             String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
-            if (userEmail != null && !userEmail.isEmpty()) this.tvUserId.setText(userEmail);
-            else {
+            if (userEmail != null && !userEmail.isEmpty()) {
+                this.tvUserId.setText(userEmail);
+                // DELETE EMAIL ACCOUNT.
+                this.tvDeleteAccount.setOnClickListener(v -> this.passwordUtils.showPasswordDialog());
+            } else {
                 this.tvUserId.setText(userPhone);
-                usePhoneAuth = true;
+                this.tvChangePassword.setVisibility(View.GONE);
+                // DELETE PHONE ACCOUNT.
+                this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(userPhone));
             }
         }
         // CHANGE PASSWORD.
-        if (usePhoneAuth) {
-            int color = ContextCompat.getColor(this.mContext, R.color.gray);
-            this.tvChangePassword.setTextColor(color);
-        } else {
-            this.tvChangePassword.setOnClickListener(v -> {
+        this.tvChangePassword.setOnClickListener(v -> {
 
-            });
-        }
+        });
         // LOGOUT.
         this.tvLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(this.mContext, LoginActivity.class);
             startActivity(intent);
             requireActivity().finish();
-        });
-        // DELETE ACCOUNT.
-        this.tvDeleteAccount.setOnClickListener(v -> {
-
         });
     }
 }
