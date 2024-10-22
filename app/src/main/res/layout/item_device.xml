@@ -72,7 +72,7 @@
             android:padding="15dp">
 
             <ImageView
-                android:id="@+id/ivInfo"
+                android:id="@+id/iv_info"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="15dp"
@@ -81,7 +81,7 @@
                 tools:ignore="HardcodedText" />
 
             <ImageView
-                android:id="@+id/ivShare"
+                android:id="@+id/iv_share"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="15dp"
@@ -90,7 +90,7 @@
                 tools:ignore="HardcodedText" />
 
             <ImageView
-                android:id="@+id/ivUnlink"
+                android:id="@+id/iv_unlink"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="TOOL_UNLINK"

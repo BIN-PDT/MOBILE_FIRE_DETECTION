@@ -99,6 +99,7 @@ public class FragmentDevices extends Fragment {
             String deviceId = edtDeviceId.getText().toString();
             if (deviceId.isEmpty()) {
                 Toast.makeText(mContext, "DEVICE ID CAN'T BE EMPTY", Toast.LENGTH_SHORT).show();
+                edtDeviceId.requestFocus();
                 return;
             }
 

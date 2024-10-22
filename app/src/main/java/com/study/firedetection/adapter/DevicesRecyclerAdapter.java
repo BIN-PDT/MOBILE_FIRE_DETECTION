@@ -111,6 +111,18 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             intent.putExtra("deviceName", item.getName());
             mContext.startActivity(intent);
         });
+        // DEVICE INFORMATION.
+        holder.ivInfo.setOnClickListener(v -> {
+
+        });
+        // DEVICE SHARE.
+        holder.ivShare.setOnClickListener(v -> {
+
+        });
+        // DEVICE UNLINK.
+        holder.ivUnlink.setOnClickListener(v -> {
+
+        });
     }
 
     @Override
@@ -122,6 +134,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         private final ProgressBar loadingStatus;
         private final TextView tvName;
         private final ImageView ivState, ivDetect;
+        private final ImageView ivInfo, ivShare, ivUnlink;
         private final LinearLayout layoutMain, layoutTool;
 
         public ItemViewHolder(@NonNull View itemView) {
@@ -130,6 +143,9 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             this.tvName = itemView.findViewById(R.id.tv_name);
             this.ivState = itemView.findViewById(R.id.iv_online);
             this.ivDetect = itemView.findViewById(R.id.iv_detect);
+            this.ivInfo = itemView.findViewById(R.id.iv_info);
+            this.ivShare = itemView.findViewById(R.id.iv_share);
+            this.ivUnlink = itemView.findViewById(R.id.iv_unlink);
             this.layoutMain = itemView.findViewById(R.id.layout_main);
             this.layoutTool = itemView.findViewById(R.id.layout_tool);
         }

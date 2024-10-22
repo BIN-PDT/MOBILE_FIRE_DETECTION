@@ -1,14 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragment.FragmentAccount">
 
-    <TextView
+    <View
+        android:id="@+id/layout_info"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/orange" />
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_below="@id/layout_info"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="-50dp"
+        android:contentDescription="AVATAR"
+        android:src="@drawable/icon_avatar"
+        tools:ignore="HardcodedText" />
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="FRAGMENT ACCOUNT" />
+        android:layout_above="@id/iv_avatar"
+        android:layout_alignBottom="@id/layout_info"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="25dp"
+        android:layout_toEndOf="@id/iv_avatar"
+        android:background="@drawable/bg_rounded"
+        android:orientation="vertical"
+        android:padding="15dp">
+
+        <TextView
+            android:id="@+id/tv_user_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:breakStrategy="simple"
+            android:fontFamily="@font/bree_serif_regular"
+            android:letterSpacing="0.1"
+            android:padding="5dp"
+            android:textColor="@color/gray"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_device_quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_user_id"
+            android:layout_alignStart="@id/tv_user_id"
+            android:fontFamily="@font/bree_serif_regular"
+            android:letterSpacing="0.1"
+            android:padding="5dp"
+            android:textColor="@color/gray"
+            android:textSize="12sp"
+            android:textStyle="italic" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/iv_avatar"
+        android:layout_marginTop="25dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="25dp"
+                android:background="@drawable/bg_account_tool"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_change_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/bree_serif_regular"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="20dp"
+                    android:text="CHANGE PASSWORD"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_account_tool"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_logout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/bree_serif_regular"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="20dp"
+                    android:text="LOGOUT"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
+                <com.google.android.material.divider.MaterialDivider
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginVertical="5dp"
+                    app:dividerColor="@color/light_gray" />
+
+                <TextView
+                    android:id="@+id/tv_delete_account"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/bree_serif_regular"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="20dp"
+                    android:text="DELETE ACCOUNT"
+                    android:textColor="@color/red"
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </RelativeLayout>
