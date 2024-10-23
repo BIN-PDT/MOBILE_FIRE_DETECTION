@@ -24,13 +24,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingHorizontal="25dp"
         android:paddingVertical="35dp">
 
         <EditText
             android:id="@+id/edt_device_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="35dp"
             android:autofillHints=""
             android:background="@drawable/bg_rounded"
             android:drawablePadding="10dp"
@@ -47,7 +47,6 @@
             android:id="@+id/btn_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="35dp"
             android:layout_marginTop="40dp"
             android:background="@drawable/bg_rounded"
             android:fontFamily="@font/bree_serif_regular"

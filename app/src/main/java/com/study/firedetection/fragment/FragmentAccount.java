@@ -1,6 +1,7 @@
 package com.study.firedetection.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,14 +21,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.LoginActivity;
 import com.study.firedetection.R;
+import com.study.firedetection.utils.ChangePasswordUtils;
+import com.study.firedetection.utils.EmailPasswordUtils;
 import com.study.firedetection.utils.OTPUtils;
-import com.study.firedetection.utils.PasswordUtils;
 
 public class FragmentAccount extends Fragment {
     private Context mContext;
     private TextView tvUserId, tvDeviceQuantity;
     private TextView tvChangePassword, tvLogout, tvDeleteAccount;
-    private PasswordUtils passwordUtils;
+    private EmailPasswordUtils emailPasswordUtils;
+    private ChangePasswordUtils changePasswordUtils;
     private OTPUtils otpUtils;
 
     @Override
@@ -72,8 +75,10 @@ public class FragmentAccount extends Fragment {
         this.tvLogout = view.findViewById(R.id.tv_logout);
         this.tvDeleteAccount = view.findViewById(R.id.tv_delete_account);
 
-        this.passwordUtils = new PasswordUtils(getActivity());
-        this.otpUtils = new OTPUtils(getActivity());
+        Activity activity = getActivity();
+        this.emailPasswordUtils = new EmailPasswordUtils(activity);
+        this.changePasswordUtils = new ChangePasswordUtils(activity);
+        this.otpUtils = new OTPUtils(activity);
         this.otpUtils.setUseForDeleteAccount(true);
     }
 
@@ -86,16 +91,14 @@ public class FragmentAccount extends Fragment {
             if (userEmail != null && !userEmail.isEmpty()) {
                 this.tvUserId.setText(userEmail);
                 // DELETE EMAIL ACCOUNT.
-                this.tvDeleteAccount.setOnClickListener(v -> this.passwordUtils.showPasswordDialog());
+                this.tvDeleteAccount.setOnClickListener(v -> this.emailPasswordUtils.showEmailPasswordDialog());
+                // CHANGE PASSWORD.
+                this.tvChangePassword.setOnClickListener(v -> this.changePasswordUtils.showChangePasswordDialog());
             } else {
                 this.tvUserId.setText(userPhone);
                 this.tvChangePassword.setVisibility(View.GONE);
                 // DELETE PHONE ACCOUNT.
                 this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(userPhone));
-                // CHANGE PASSWORD.
-                this.tvChangePassword.setOnClickListener(v -> {
-
-                });
             }
         }
         // LOGOUT.

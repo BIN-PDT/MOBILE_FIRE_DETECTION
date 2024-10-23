@@ -143,10 +143,10 @@
             android:layout_marginHorizontal="35dp"
             android:layout_marginTop="20dp"
             android:fontFamily="@font/bree_serif_regular"
-            android:text="Send again?"
+            android:letterSpacing="0.05"
+            android:text="SEND AGAIN?"
             android:textAlignment="textEnd"
-            android:textSize="16sp"
-            android:textStyle="italic"
+            android:textSize="12sp"
             tools:ignore="HardcodedText" />
 
         <Button

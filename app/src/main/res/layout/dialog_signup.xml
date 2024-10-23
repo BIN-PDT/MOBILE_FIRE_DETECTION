@@ -24,73 +24,64 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingHorizontal="25dp"
         android:paddingVertical="35dp">
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/edt_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center"
-            android:orientation="vertical">
+            android:autofillHints=""
+            android:background="@drawable/bg_rounded"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/bree_serif_regular"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:letterSpacing="0.075"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="20dp"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText,LabelFor" />
 
-            <EditText
-                android:id="@+id/edt_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints=""
-                android:background="@drawable/bg_rounded"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/bree_serif_regular"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:letterSpacing="0.075"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="20dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText,LabelFor" />
+        <EditText
+            android:id="@+id/edt_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="15dp"
+            android:autofillHints=""
+            android:background="@drawable/bg_rounded"
+            android:drawableEnd="@drawable/icon_field_hidden"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/bree_serif_regular"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:letterSpacing="0.075"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="20dp"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText,LabelFor" />
 
-            <EditText
-                android:id="@+id/edt_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginVertical="15dp"
-                android:autofillHints=""
-                android:background="@drawable/bg_rounded"
-                android:drawableEnd="@drawable/icon_field_hidden"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/bree_serif_regular"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:letterSpacing="0.075"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="20dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText,LabelFor" />
-
-            <EditText
-                android:id="@+id/edt_password2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autofillHints=""
-                android:background="@drawable/bg_rounded"
-                android:drawableEnd="@drawable/icon_field_hidden"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/bree_serif_regular"
-                android:hint="Confirm Password"
-                android:inputType="textPassword"
-                android:letterSpacing="0.075"
-                android:paddingHorizontal="15dp"
-                android:paddingVertical="20dp"
-                android:textSize="14sp"
-                tools:ignore="HardcodedText,LabelFor" />
-
-        </LinearLayout>
+        <EditText
+            android:id="@+id/edt_password2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:background="@drawable/bg_rounded"
+            android:drawableEnd="@drawable/icon_field_hidden"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/bree_serif_regular"
+            android:hint="Confirm Password"
+            android:inputType="textPassword"
+            android:letterSpacing="0.075"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="20dp"
+            android:textSize="14sp"
+            tools:ignore="HardcodedText,LabelFor" />
 
         <Button
             android:id="@+id/btn_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
             android:layout_marginTop="40dp"
             android:background="@drawable/bg_rounded"
             android:fontFamily="@font/bree_serif_regular"
