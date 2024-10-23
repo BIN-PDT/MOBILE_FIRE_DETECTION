@@ -104,7 +104,7 @@ public class FragmentDevices extends Fragment {
         this.loadingView = view.findViewById(R.id.loading_view);
         this.ivAddDevice = view.findViewById(R.id.iv_add_device);
         // DEVICES LAYOUT.
-        this.devicesRecyclerAdapter = new DevicesRecyclerAdapter(this.mContext);
+        this.devicesRecyclerAdapter = new DevicesRecyclerAdapter(this.mContext, getActivity());
         RecyclerView rvDevices = view.findViewById(R.id.rv_devices);
         rvDevices.setLayoutManager(new LinearLayoutManager(
                 this.mContext, LinearLayoutManager.VERTICAL, false));
@@ -136,9 +136,9 @@ public class FragmentDevices extends Fragment {
                 return;
             }
 
-            String devicePath = String.format("devices/%s/users", deviceId);
+            String usersDevicePath = String.format("devices/%s/users", deviceId);
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference usersDeviceRef = database.getReference(devicePath);
+            DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
             // ENABLE LOADING.
             this.loadingUtils.showLoadingDialog();
             usersDeviceRef.get().addOnCompleteListener(task -> {

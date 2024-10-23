@@ -22,10 +22,19 @@ public class ConfirmUtils {
     private final Activity activity;
     private final IOnClickListener onClickListener;
     private AlertDialog dialog;
+    private String deviceId;
 
     public ConfirmUtils(Activity activity, IOnClickListener onClickListener) {
         this.activity = activity;
         this.onClickListener = onClickListener;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     public void showConfirmDialog() {
@@ -58,27 +67,30 @@ public class ConfirmUtils {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference userRef = database.getReference(userPath);
                     userRef.child("devices").get().addOnCompleteListener(task1 -> {
-                        // REMOVE USER FROM DEVICES.
-                        task1.getResult().getChildren().forEach(deviceData -> {
-                            String usersDevicePath = String.format("devices/%s/users", deviceData.getKey());
-                            DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
-                            // INVITOR.
-                            if (Boolean.FALSE.equals(deviceData.getValue(Boolean.class))) {
-                                usersDeviceRef.child(HomeActivity.USER_ID).removeValue();
-                                return;
-                            }
-                            // OWNER.
-                            if (Boolean.TRUE.equals(deviceData.getValue(Boolean.class))) {
-                                usersDeviceRef.removeValue();
-                            }
-                        });
-                        // REMOVE USER FROM DATABASE.
-                        userRef.removeValue();
-                        // BACK TO LOGIN.
-                        this.dialog.dismiss();
-                        Intent intent = new Intent(activity, LoginActivity.class);
-                        activity.startActivity(intent);
-                        activity.finish();
+                        if (task1.isSuccessful()) {
+                            // REMOVE USER FROM DEVICES.
+                            task1.getResult().getChildren().forEach(deviceData -> {
+                                String usersDevicePath = String.format("devices/%s/users", deviceData.getKey());
+                                DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
+                                // OWNER.
+                                if (Boolean.TRUE.equals(deviceData.getValue(Boolean.class))) {
+                                    usersDeviceRef.removeValue();
+                                }
+                                // INVITOR.
+                                else if (Boolean.FALSE.equals(deviceData.getValue(Boolean.class))) {
+                                    usersDeviceRef.child(HomeActivity.USER_ID).removeValue();
+                                }
+                            });
+                            // REMOVE USER FROM DATABASE.
+                            userRef.removeValue();
+                            // BACK TO LOGIN.
+                            this.dialog.dismiss();
+                            Intent intent = new Intent(activity, LoginActivity.class);
+                            activity.startActivity(intent);
+                            activity.finish();
+                        } else {
+                            Toast.makeText(activity, "TASK FAILED", Toast.LENGTH_SHORT).show();
+                        }
                     });
                 } else {
                     Toast.makeText(activity, "TASK FAILED", Toast.LENGTH_SHORT).show();
@@ -87,6 +99,34 @@ public class ConfirmUtils {
         } else {
             Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void confirmUnlinkDevice() {
+        String deviceUserPath = String.format("users/%s/devices/%s", HomeActivity.USER_ID, this.deviceId);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference deviceUserRef = database.getReference(deviceUserPath);
+        deviceUserRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                String usersDevicePath = String.format("devices/%s/users", this.deviceId);
+                DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
+                usersDeviceRef.get().addOnCompleteListener(task1 -> {
+                    // OWNER.
+                    if (Boolean.TRUE.equals(task.getResult().getValue(Boolean.class))) {
+                        usersDeviceRef.removeValue();
+                    }
+                    // INVITOR.
+                    else if (Boolean.FALSE.equals(task.getResult().getValue(Boolean.class))) {
+                        usersDeviceRef.child(HomeActivity.USER_ID).removeValue();
+                    }
+                    deviceUserRef.removeValue();
+
+                    this.dialog.dismiss();
+                    Toast.makeText(activity, "DEVICE UNLIKED", Toast.LENGTH_SHORT).show();
+                });
+            } else {
+                Toast.makeText(activity, "TASK FAILED", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     public interface IOnClickListener {

@@ -1,6 +1,7 @@
 package com.study.firedetection.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -24,16 +25,27 @@ import com.study.firedetection.DeviceActivity;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 import com.study.firedetection.entity.DeviceItem;
+import com.study.firedetection.utils.ConfirmUtils;
+import com.study.firedetection.utils.DeviceUtils;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecyclerAdapter.ItemViewHolder> {
+public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecyclerAdapter.ItemViewHolder>
+        implements ConfirmUtils.IOnClickListener {
+    private final Map<String, SimpleEntry<DatabaseReference, ValueEventListener>> DEVICE_EVENTS = new HashMap<>();
     private final Context mContext;
     private final List<DeviceItem> originalData = new ArrayList<>();
+    private final DeviceUtils deviceUtils;
+    private final ConfirmUtils confirmUtils;
 
-    public DevicesRecyclerAdapter(Context mContext) {
+    public DevicesRecyclerAdapter(Context mContext, Activity activity) {
         this.mContext = mContext;
+        this.deviceUtils = new DeviceUtils(activity);
+        this.confirmUtils = new ConfirmUtils(activity, this);
     }
 
     public List<DeviceItem> getOriginalData() {
@@ -42,6 +54,9 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
     @SuppressLint("NotifyDataSetChanged")
     public void loadOriginalData(List<DeviceItem> data) {
+        this.DEVICE_EVENTS.values().forEach(entry -> entry.getKey().removeEventListener(entry.getValue()));
+        this.DEVICE_EVENTS.clear();
+
         this.originalData.clear();
         this.originalData.addAll(data);
         notifyDataSetChanged();
@@ -63,51 +78,34 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         DeviceItem item = this.originalData.get(position);
+        String deviceId = item.getId();
 
-        String devicePath = String.format("devices/%s", item.getId());
+        holder.tvName.setOnClickListener(v -> {
+            Intent intent = new Intent(this.mContext, DeviceActivity.class);
+            intent.putExtra("deviceId", deviceId);
+            intent.putExtra("deviceName", item.getName());
+            this.mContext.startActivity(intent);
+        });
+        // FIREBASE EVENT.
+        String devicePath = String.format("devices/%s", deviceId);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference deviceRef = database.getReference(devicePath);
-        deviceRef.addValueEventListener(new ValueEventListener() {
+        ValueEventListener deviceListener = deviceRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // ENABLE LOADING.
                 holder.loadingStatus.setVisibility(View.VISIBLE);
                 DeviceItem updatedItem = snapshot.getValue(DeviceItem.class);
                 if (updatedItem != null) {
-                    // TOOL LAYOUT.
-                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
-                    if (Boolean.TRUE.equals(isOwner)) {
-                        holder.layoutOwnerTool.setVisibility(View.VISIBLE);
-                        // DEVICE INFORMATION.
-                        holder.ivInfo.setOnClickListener(v -> {
-
-                        });
-                        // DEVICE SHARE.
-                        holder.ivShare.setOnClickListener(v -> {
-
-                        });
-                    }
-                    // DEVICE UNLINK.
-                    holder.ivUnlink.setOnClickListener(v -> {
-
-                    });
-                    // DEVICE INFORMATION.
+                    // UPDATE DEVICE INFORMATION.
                     item.setName(updatedItem.getName());
                     item.setOnline(updatedItem.isOnline());
                     item.setDetect(updatedItem.isDetect());
-                    // INFORMATION LAYOUT.
-                    holder.tvName.setText(item.getName());
-                    int onlineId = item.isOnline() ? R.drawable.icon_online : R.drawable.icon_offline;
-                    holder.ivState.setImageDrawable(ContextCompat.getDrawable(mContext, onlineId));
-                    if (item.isOnline()) {
-                        int detectId = item.isDetect() ? R.drawable.icon_fire : R.drawable.icon_none;
-                        holder.ivDetect.setImageDrawable(ContextCompat.getDrawable(mContext, detectId));
-                        int statusId = item.isDetect() ? R.drawable.bg_fire : R.drawable.bg_none;
-                        holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, statusId));
-                    } else {
-                        holder.ivDetect.setImageDrawable(null);
-                        holder.layoutMain.setBackground(ContextCompat.getDrawable(mContext, R.drawable.bg_offline));
-                    }
+                    // INFO LAYOUT.
+                    holder.loadInfoLayout(mContext, item);
+                    // TOOL LAYOUT.
+                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
+                    holder.loadToolLayout(deviceId, item.getName(), isOwner, deviceUtils, confirmUtils);
                     // DISABLE LOADING.
                     holder.loadingStatus.setVisibility(View.GONE);
                 }
@@ -118,17 +116,26 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
 
             }
         });
-        holder.tvName.setOnClickListener(v -> {
-            Intent intent = new Intent(this.mContext, DeviceActivity.class);
-            intent.putExtra("deviceId", item.getId());
-            intent.putExtra("deviceName", item.getName());
-            mContext.startActivity(intent);
-        });
+        this.DEVICE_EVENTS.put(deviceId, new SimpleEntry<>(deviceRef, deviceListener));
     }
 
     @Override
     public int getItemCount() {
         return this.originalData.size();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    public void onConfirm() {
+        this.confirmUtils.confirmUnlinkDevice();
+        // REMOVE DEVICE EVENT & DATA.
+        String removedDeviceId = this.confirmUtils.getDeviceId();
+        SimpleEntry<DatabaseReference, ValueEventListener> deviceEvent = this.DEVICE_EVENTS.get(removedDeviceId);
+        if (deviceEvent != null) {
+            deviceEvent.getKey().removeEventListener(deviceEvent.getValue());
+        }
+        this.originalData.removeIf(deviceItem -> deviceItem.getId().equals(removedDeviceId));
+        notifyDataSetChanged();
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
@@ -149,6 +156,45 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             this.ivUnlink = itemView.findViewById(R.id.iv_unlink);
             this.layoutMain = itemView.findViewById(R.id.layout_main);
             this.layoutOwnerTool = itemView.findViewById(R.id.layout_owner_tool);
+        }
+
+        private void loadInfoLayout(Context context, DeviceItem item) {
+            // INFORMATION LAYOUT.
+            this.tvName.setText(item.getName());
+            int onlineId = item.isOnline() ? R.drawable.icon_online : R.drawable.icon_offline;
+            this.ivState.setImageDrawable(ContextCompat.getDrawable(context, onlineId));
+            if (item.isOnline()) {
+                int detectId = item.isDetect() ? R.drawable.icon_fire : R.drawable.icon_none;
+                this.ivDetect.setImageDrawable(ContextCompat.getDrawable(context, detectId));
+                int statusId = item.isDetect() ? R.drawable.bg_fire : R.drawable.bg_none;
+                this.layoutMain.setBackground(ContextCompat.getDrawable(context, statusId));
+            } else {
+                this.ivDetect.setImageDrawable(null);
+                this.layoutMain.setBackground(ContextCompat.getDrawable(context, R.drawable.bg_offline));
+            }
+        }
+
+        private void loadToolLayout(String deviceId, String deviceName, Boolean isOwner,
+                                    DeviceUtils deviceUtils, ConfirmUtils confirmUtils) {
+            this.layoutOwnerTool.setVisibility(View.GONE);
+            if (Boolean.TRUE.equals(isOwner)) {
+                this.layoutOwnerTool.setVisibility(View.VISIBLE);
+                // DEVICE INFORMATION.
+                this.ivInfo.setOnClickListener(v -> {
+                    deviceUtils.setDeviceId(deviceId);
+                    deviceUtils.setDeviceName(deviceName);
+                    deviceUtils.showDeviceDialog(R.layout.dialog_update_device);
+                });
+                // DEVICE SHARE.
+                this.ivShare.setOnClickListener(v -> {
+
+                });
+            }
+            // DEVICE UNLINK.
+            this.ivUnlink.setOnClickListener(v -> {
+                confirmUtils.setDeviceId(deviceId);
+                confirmUtils.showConfirmDialog();
+            });
         }
     }
 }
