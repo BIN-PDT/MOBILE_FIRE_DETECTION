@@ -68,7 +68,6 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference deviceRef = database.getReference(devicePath);
         deviceRef.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 // ENABLE LOADING.

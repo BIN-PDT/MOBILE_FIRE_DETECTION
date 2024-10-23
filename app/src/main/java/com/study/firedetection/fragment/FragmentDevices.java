@@ -28,6 +28,7 @@ import com.study.firedetection.utils.LoadingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class FragmentDevices extends Fragment {
     private Context mContext;
@@ -48,6 +49,55 @@ public class FragmentDevices extends Fragment {
         this.onEvent();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.loadDevices();
+    }
+
+    private void loadDevices() {
+        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_ID);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
+        devicesUserRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                List<DeviceItem> data = new ArrayList<>();
+                AtomicLong devicesUserCount = new AtomicLong(task.getResult().getChildrenCount());
+                // NO DATA.
+                if (devicesUserCount.get() == 0) {
+                    this.devicesRecyclerAdapter.loadOriginalData(new ArrayList<>());
+                    // DISABLE LOADING.
+                    this.loadingView.setVisibility(View.GONE);
+                    return;
+                }
+                // GET DATA.
+                task.getResult().getChildren().forEach(device -> {
+                    String deviceId = device.getKey();
+                    // CHECK BE REMOVED FROM DEVICE.
+                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_ID);
+                    DatabaseReference userDeviceRef = database.getReference(userDevicePath);
+                    userDeviceRef.get().addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            if (task1.getResult().getValue(Boolean.class) == null)
+                                userDeviceRef.removeValue();
+                            else {
+                                DeviceItem item = new DeviceItem();
+                                item.setId(deviceId);
+                                data.add(item);
+                            }
+                        }
+                        // CHECK COMPLETE.
+                        if (devicesUserCount.decrementAndGet() == 0) {
+                            this.devicesRecyclerAdapter.loadOriginalData(data);
+                            // DISABLE LOADING.
+                            this.loadingView.setVisibility(View.GONE);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
     private void onReady(View view) {
         this.mContext = getContext();
         this.loadingUtils = new LoadingUtils(getActivity());
@@ -63,36 +113,6 @@ public class FragmentDevices extends Fragment {
 
     private void onEvent() {
         this.ivAddDevice.setOnClickListener(v -> this.showAddDeviceDialog());
-        // FIREBASE EVENT.
-        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_ID);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
-        devicesUserRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                List<DeviceItem> data = new ArrayList<>();
-                task.getResult().getChildren().forEach(device -> {
-                    String deviceId = device.getKey();
-                    if (deviceId == null) return;
-                    // CHECK BE REMOVED FROM DEVICE.
-                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_ID);
-                    DatabaseReference userDeviceRef = database.getReference(userDevicePath);
-                    userDeviceRef.child(HomeActivity.USER_ID).get().addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            if (task1.getResult().getValue(Boolean.class) == null)
-                                devicesUserRef.child(deviceId).removeValue();
-                            else {
-                                DeviceItem item = new DeviceItem();
-                                item.setId(deviceId);
-                                data.add(item);
-                            }
-                        }
-                    });
-                });
-                this.devicesRecyclerAdapter.loadOriginalData(data);
-                // DISABLE LOADING.
-                this.loadingView.setVisibility(View.GONE);
-            }
-        });
     }
 
     private void showAddDeviceDialog() {

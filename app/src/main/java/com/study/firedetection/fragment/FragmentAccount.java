@@ -42,6 +42,27 @@ public class FragmentAccount extends Fragment {
         this.onEvent();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.loadDeviceQuantity();
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void loadDeviceQuantity() {
+        String userPath = String.format("users/%s", HomeActivity.USER_ID);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userRef = database.getReference(userPath);
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                long quantity = task.getResult().child("devices").getChildrenCount();
+                String quantityString = quantity == 0 ? "No devices" :
+                        quantity == 1 ? "1 device" : String.format("%d devices", quantity);
+                this.tvDeviceQuantity.setText(quantityString);
+            }
+        });
+    }
+
     private void onReady(View view) {
         this.mContext = getContext();
         this.tvUserId = view.findViewById(R.id.tv_user_id);
@@ -58,18 +79,6 @@ public class FragmentAccount extends Fragment {
 
     @SuppressLint("DefaultLocale")
     private void onEvent() {
-        // FIREBASE EVENT.
-        String userPath = String.format("users/%s", HomeActivity.USER_ID);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userRef = database.getReference(userPath);
-        userRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                long quantity = task.getResult().child("devices").getChildrenCount();
-                String quantityString = quantity == 0 ? "No devices" :
-                        quantity == 1 ? "1 device" : String.format("%d devices", quantity);
-                this.tvDeviceQuantity.setText(quantityString);
-            }
-        });
         // USER IDENTIFIER.
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -83,12 +92,12 @@ public class FragmentAccount extends Fragment {
                 this.tvChangePassword.setVisibility(View.GONE);
                 // DELETE PHONE ACCOUNT.
                 this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(userPhone));
+                // CHANGE PASSWORD.
+                this.tvChangePassword.setOnClickListener(v -> {
+
+                });
             }
         }
-        // CHANGE PASSWORD.
-        this.tvChangePassword.setOnClickListener(v -> {
-
-        });
         // LOGOUT.
         this.tvLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
