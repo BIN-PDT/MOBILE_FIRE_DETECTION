@@ -23,6 +23,7 @@ public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
     private final ConfirmUtils confirmUtils;
+    private AlertDialog dialog;
 
     public EmailPasswordUtils(Activity activity) {
         this.activity = activity;
@@ -34,11 +35,11 @@ public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
     public void showEmailPasswordDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_email_password, null);
-        onEmailPasswordView(view);
+        this.onEmailPasswordView(view);
         builder.setView(view);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        this.dialog = builder.create();
+        this.dialog.show();
     }
 
     private void onEmailPasswordView(@NonNull View view) {
@@ -100,10 +101,12 @@ public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
 
     private void checkEmailAndPassword(String email, String password) {
         this.loadingUtils.showLoadingDialog();
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+        this.mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             this.loadingUtils.hideLoadingDialog();
-            if (task.isSuccessful()) this.confirmUtils.showConfirmDialog();
-            else Toast.makeText(activity, "WRONG EMAIL OR PASSWORD", Toast.LENGTH_SHORT).show();
+            if (task.isSuccessful()) {
+                this.dialog.dismiss();
+                this.confirmUtils.showConfirmDialog();
+            } else Toast.makeText(activity, "WRONG EMAIL OR PASSWORD", Toast.LENGTH_SHORT).show();
         });
     }
 

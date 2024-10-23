@@ -25,6 +25,7 @@ public class SignUpUtils {
     private final Activity activity;
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
+    private AlertDialog dialog;
 
     public SignUpUtils(Activity activity) {
         this.activity = activity;
@@ -35,11 +36,11 @@ public class SignUpUtils {
     public void showSignUpDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_signup, null);
-        onSignUpView(view);
+        this.onSignUpView(view);
         builder.setView(view);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        this.dialog = builder.create();
+        this.dialog.show();
     }
 
     private void onSignUpView(@NonNull View view) {
@@ -48,8 +49,8 @@ public class SignUpUtils {
         EditText edtPassword2 = view.findViewById(R.id.edt_password2);
         Button btnConfirm = view.findViewById(R.id.btn_confirm);
 
-        onPasswordField(edtPassword);
-        onPasswordField(edtPassword2);
+        this.onPasswordField(edtPassword);
+        this.onPasswordField(edtPassword2);
 
         btnConfirm.setOnClickListener(v -> {
             String email = edtEmail.getText().toString().trim();
@@ -109,13 +110,14 @@ public class SignUpUtils {
     }
 
     private void signUpAccount(String email, String password) {
-        loadingUtils.showLoadingDialog();
-        mAuth.createUserWithEmailAndPassword(email, password)
+        this.loadingUtils.showLoadingDialog();
+        this.mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(activity, task -> {
-                    loadingUtils.hideLoadingDialog();
+                    this.loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
+                            this.dialog.dismiss();
                             Intent intent = new Intent(activity, HomeActivity.class);
                             activity.startActivity(intent);
                             activity.finish();

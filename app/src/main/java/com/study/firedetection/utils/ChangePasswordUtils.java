@@ -119,7 +119,7 @@ public class ChangePasswordUtils {
                 return;
             }
 
-            mAuth.signInWithEmailAndPassword(email, currentPassword).addOnCompleteListener(task -> {
+            this.mAuth.signInWithEmailAndPassword(email, currentPassword).addOnCompleteListener(task -> {
                 this.loadingUtils.hideLoadingDialog();
                 if (task.isSuccessful()) {
                     user.updatePassword(newPassword)

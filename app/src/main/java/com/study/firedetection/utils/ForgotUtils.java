@@ -17,6 +17,7 @@ public class ForgotUtils {
     private final Activity activity;
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
+    private AlertDialog dialog;
 
     public ForgotUtils(Activity activity) {
         this.activity = activity;
@@ -27,11 +28,11 @@ public class ForgotUtils {
     public void showForgotDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_forgot, null);
-        onForgotView(view);
+        this.onForgotView(view);
         builder.setView(view);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        this.dialog = builder.create();
+        this.dialog.show();
     }
 
     private void onForgotView(@NonNull View view) {
@@ -52,11 +53,12 @@ public class ForgotUtils {
     }
 
     private void sendResetPasswordEmail(String email) {
-        loadingUtils.showLoadingDialog();
-        mAuth.sendPasswordResetEmail(email)
+        this.loadingUtils.showLoadingDialog();
+        this.mAuth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(task -> {
-                    loadingUtils.hideLoadingDialog();
+                    this.loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
+                        this.dialog.dismiss();
                         String notification = String.format("AN EMAIL HAS SENT TO %s", email);
                         Toast.makeText(activity, notification, Toast.LENGTH_SHORT).show();
                     } else {

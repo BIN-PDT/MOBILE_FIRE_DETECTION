@@ -36,6 +36,7 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mForceResendingToken;
     private boolean useForDeleteAccount = false;
+    private AlertDialog dialog;
 
     public OTPUtils(Activity activity) {
         this.mAuth = FirebaseAuth.getInstance();
@@ -53,18 +54,17 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
     }
 
     public void sendOTP(String phoneNumber) {
-        mPhoneNumber = phoneNumber;
-        loadingUtils.showLoadingDialog();
-
+        this.mPhoneNumber = phoneNumber;
+        this.loadingUtils.showLoadingDialog();
         PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(mAuth)
+                PhoneAuthOptions.newBuilder(this.mAuth)
                         .setPhoneNumber(phoneNumber)
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                             @Override
                             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                                if (useForDeleteAccount) confirmUtils.showConfirmDialog();
+                                if (useForDeleteAccount) showDeleteAccountConfirmDialog();
                                 else signInWithPhoneAuthCredential(phoneAuthCredential);
                             }
 
@@ -90,11 +90,11 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
     private void showOTPDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_otp, null);
-        onOTPView(view);
+        this.onOTPView(view);
         builder.setView(view);
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        this.dialog = builder.create();
+        this.dialog.show();
     }
 
     private void onOTPView(@NonNull View view) {
@@ -121,7 +121,7 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
         edtOTP5.setOnKeyListener(new OTPKeyListener(edtOTP5, edtOTP4));
         edtOTP6.setOnKeyListener(new OTPKeyListener(edtOTP6, edtOTP5));
 
-        tvResend.setOnClickListener(v -> resendOTP());
+        tvResend.setOnClickListener(v -> this.resendOTP());
         btnConfirm.setOnClickListener(v -> {
             String OTPCode = edtOTP1.getText().toString() + edtOTP2.getText().toString() + edtOTP3.getText().toString()
                     + edtOTP4.getText().toString() + edtOTP5.getText().toString() + edtOTP6.getText().toString();
@@ -129,23 +129,23 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
                 Toast.makeText(activity, "INVALID OTP", Toast.LENGTH_SHORT).show();
             }
 
-            verifyOTP(OTPCode);
+            this.verifyOTP(OTPCode);
         });
     }
 
     private void resendOTP() {
-        loadingUtils.showLoadingDialog();
+        this.loadingUtils.showLoadingDialog();
         PhoneAuthOptions options =
-                PhoneAuthOptions.newBuilder(mAuth)
-                        .setPhoneNumber(mPhoneNumber)
+                PhoneAuthOptions.newBuilder(this.mAuth)
+                        .setPhoneNumber(this.mPhoneNumber)
                         .setTimeout(60L, TimeUnit.SECONDS)
                         .setActivity(activity)
-                        .setForceResendingToken(mForceResendingToken)
+                        .setForceResendingToken(this.mForceResendingToken)
                         .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                             @Override
                             public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                                if (useForDeleteAccount) confirmUtils.showConfirmDialog();
-                                else signInWithPhoneAuthCredential(phoneAuthCredential);
+                                if (!useForDeleteAccount)
+                                    signInWithPhoneAuthCredential(phoneAuthCredential);
                             }
 
                             @Override
@@ -167,20 +167,21 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
     }
 
     private void verifyOTP(String OTPCode) {
-        loadingUtils.showLoadingDialog();
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, OTPCode);
-        signInWithPhoneAuthCredential(credential);
+        this.loadingUtils.showLoadingDialog();
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(this.mVerificationId, OTPCode);
+        this.signInWithPhoneAuthCredential(credential);
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
-        mAuth.signInWithCredential(credential)
+        this.mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(activity, task -> {
-                    loadingUtils.hideLoadingDialog();
+                    this.loadingUtils.hideLoadingDialog();
                     if (task.isSuccessful()) {
-                        if (useForDeleteAccount) confirmUtils.showConfirmDialog();
+                        if (useForDeleteAccount) this.showDeleteAccountConfirmDialog();
                         else {
                             FirebaseUser user = task.getResult().getUser();
                             if (user != null) {
+                                this.dialog.dismiss();
                                 Intent intent = new Intent(activity, HomeActivity.class);
                                 activity.startActivity(intent);
                                 activity.finish();
@@ -196,9 +197,14 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
                 });
     }
 
+    private void showDeleteAccountConfirmDialog() {
+        this.dialog.dismiss();
+        this.confirmUtils.showConfirmDialog();
+    }
+
     @Override
     public void onConfirm() {
-        confirmUtils.confirmDeleteAccount();
+        this.confirmUtils.confirmDeleteAccount();
     }
 
     private static class OTPKeyListener implements View.OnKeyListener {

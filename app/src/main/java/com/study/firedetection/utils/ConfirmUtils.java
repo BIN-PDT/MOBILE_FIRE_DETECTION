@@ -21,6 +21,7 @@ import com.study.firedetection.R;
 public class ConfirmUtils {
     private final Activity activity;
     private final IOnClickListener onClickListener;
+    private AlertDialog dialog;
 
     public ConfirmUtils(Activity activity, IOnClickListener onClickListener) {
         this.activity = activity;
@@ -30,21 +31,21 @@ public class ConfirmUtils {
     public void showConfirmDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_confirm, null);
+        this.onConfirmView(view);
         builder.setView(view);
 
-        AlertDialog dialog = builder.create();
-        this.onConfirmView(view, dialog);
-        dialog.show();
+        this.dialog = builder.create();
+        this.dialog.show();
     }
 
-    private void onConfirmView(@NonNull View view, AlertDialog dialog) {
+    private void onConfirmView(@NonNull View view) {
         Button btnConfirm = view.findViewById(R.id.btn_confirm);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
 
         btnConfirm.setOnClickListener(v -> this.onClickListener.onConfirm());
         btnCancel.setOnClickListener(v -> {
-            dialog.dismiss();
             this.onClickListener.onCancel();
+            this.dialog.dismiss();
         });
     }
 
@@ -74,6 +75,7 @@ public class ConfirmUtils {
                         // REMOVE USER FROM DATABASE.
                         userRef.removeValue();
                         // BACK TO LOGIN.
+                        this.dialog.dismiss();
                         Intent intent = new Intent(activity, LoginActivity.class);
                         activity.startActivity(intent);
                         activity.finish();
