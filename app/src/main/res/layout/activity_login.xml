@@ -11,8 +11,8 @@
     tools:context=".LoginActivity">
 
     <ImageView
-        android:layout_width="128dp"
-        android:layout_height="128dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_marginVertical="40dp"
         android:contentDescription="LOGO"
         android:src="@drawable/logo"
@@ -73,12 +73,12 @@
                 android:autofillHints=""
                 android:background="@drawable/bg_rounded"
                 android:fontFamily="@font/bree_serif_regular"
+                android:hint="PHONE NUMBER"
                 android:inputType="phone"
-                android:letterSpacing="0.1"
-                android:paddingHorizontal="20dp"
-                android:paddingVertical="20dp"
-                android:textSize="16sp"
-                tools:ignore="LabelFor" />
+                android:letterSpacing="0.05"
+                android:padding="20dp"
+                android:textSize="12sp"
+                tools:ignore="HardcodedText,LabelFor" />
 
         </LinearLayout>
 
@@ -99,12 +99,12 @@
                 android:drawableStart="@drawable/icon_field_email"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/bree_serif_regular"
-                android:hint="Email"
+                android:hint="EMAIL"
                 android:inputType="textEmailAddress"
-                android:letterSpacing="0.075"
+                android:letterSpacing="0.05"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="20dp"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:ignore="HardcodedText,LabelFor" />
 
             <EditText
@@ -117,12 +117,12 @@
                 android:drawableEnd="@drawable/icon_field_hidden"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/bree_serif_regular"
-                android:hint="Password"
+                android:hint="PASSWORD"
                 android:inputType="textPassword"
-                android:letterSpacing="0.075"
+                android:letterSpacing="0.05"
                 android:paddingHorizontal="15dp"
                 android:paddingVertical="20dp"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:ignore="HardcodedText,LabelFor" />
 
             <RelativeLayout
@@ -137,9 +137,9 @@
                     android:fontFamily="@font/bree_serif_regular"
                     android:letterSpacing="0.05"
                     android:paddingVertical="10dp"
-                    android:text="FORGOT PASSWORD?"
+                    android:text="FORGOT PASSWORD"
                     android:textColor="@color/gray"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText" />
 
                 <TextView
@@ -150,9 +150,9 @@
                     android:fontFamily="@font/bree_serif_regular"
                     android:letterSpacing="0.05"
                     android:paddingVertical="10dp"
-                    android:text="SIGNUP ACCOUNT?"
+                    android:text="SIGNUP ACCOUNT"
                     android:textColor="@color/gray"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     tools:ignore="HardcodedText" />
 
             </RelativeLayout>
@@ -170,7 +170,7 @@
             android:paddingVertical="15dp"
             android:text="LOGIN"
             android:textColor="@color/white"
-            android:textSize="18sp"
+            android:textSize="16sp"
             app:backgroundTint="@color/orange"
             tools:ignore="HardcodedText" />
 

@@ -89,13 +89,13 @@ public class FragmentAccount extends Fragment {
         if (user != null) {
             String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
             if (userEmail != null && !userEmail.isEmpty()) {
-                this.tvUserId.setText(userEmail);
+                this.tvUserId.setText(this.hideUserInformation(userEmail));
                 // DELETE EMAIL ACCOUNT.
                 this.tvDeleteAccount.setOnClickListener(v -> this.emailPasswordUtils.showEmailPasswordDialog());
                 // CHANGE PASSWORD.
                 this.tvChangePassword.setOnClickListener(v -> this.changePasswordUtils.showChangePasswordDialog());
             } else {
-                this.tvUserId.setText(userPhone);
+                this.tvUserId.setText(this.hideUserInformation(userPhone));
                 this.tvChangePassword.setVisibility(View.GONE);
                 // DELETE PHONE ACCOUNT.
                 this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(userPhone));
@@ -108,5 +108,33 @@ public class FragmentAccount extends Fragment {
             startActivity(intent);
             requireActivity().finish();
         });
+    }
+
+    private String hideUserInformation(String userId) {
+        if (userId == null) return null;
+        if (userId.contains("@")) {
+            String[] components = userId.split("@");
+            String username = components[0], domain = components[1];
+
+            if (username.length() <= 2) {
+                return "*".repeat(username.length()) + "@" + domain;
+            } else {
+                int hiddenLength = username.length() / 2;
+                int visibleLength = username.length() - hiddenLength;
+
+                return username.substring(0, visibleLength / 2)
+                        + "*".repeat(hiddenLength)
+                        + username.substring(username.length() - visibleLength / 2)
+                        + "@" + domain;
+            }
+        } else {
+            if (userId.length() <= 6) {
+                return "*".repeat(userId.length());
+            } else {
+                return userId.substring(0, 3)
+                        + "*".repeat(userId.length() - 6)
+                        + userId.substring(userId.length() - 3);
+            }
+        }
     }
 }

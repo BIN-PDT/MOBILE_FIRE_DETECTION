@@ -48,7 +48,7 @@
                 android:layout_toStartOf="@id/iv_detect"
                 android:layout_toEndOf="@id/iv_online"
                 android:fontFamily="@font/bree_serif_regular"
-                android:paddingVertical="30dp"
+                android:paddingVertical="25dp"
                 android:textColor="@color/white"
                 android:textSize="14sp" />
 
