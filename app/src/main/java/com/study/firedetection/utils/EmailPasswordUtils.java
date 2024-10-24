@@ -3,6 +3,7 @@ package com.study.firedetection.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 
 public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
@@ -113,5 +116,24 @@ public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
     @Override
     public void onConfirm() {
         this.confirmUtils.confirmDeleteAccount();
+    }
+
+    public void signInWithEmailAndPassword(String email, String password) {
+        this.loadingUtils.showLoadingDialog();
+        this.mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            this.loadingUtils.hideLoadingDialog();
+            if (task.isSuccessful()) {
+                FirebaseUser user = this.mAuth.getCurrentUser();
+                if (user != null) {
+                    Intent intent = new Intent(activity, HomeActivity.class);
+                    activity.startActivity(intent);
+                    activity.finish();
+                } else {
+                    Toast.makeText(activity, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(activity, "AUTHENTICATION FAILED", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

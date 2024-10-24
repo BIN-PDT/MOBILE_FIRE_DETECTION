@@ -27,8 +27,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
 import com.study.firedetection.service.MyFirebaseMessagingService;
+import com.study.firedetection.utils.EmailPasswordUtils;
 import com.study.firedetection.utils.ForgotUtils;
-import com.study.firedetection.utils.LoadingUtils;
 import com.study.firedetection.utils.OTPUtils;
 import com.study.firedetection.utils.SignUpUtils;
 
@@ -43,9 +43,9 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvForgot, tvSignUp;
     private Button btnLogin;
     private OTPUtils otpUtils;
+    private EmailPasswordUtils emailPasswordUtils;
     private ForgotUtils forgotUtils;
     private SignUpUtils signUpUtils;
-    private LoadingUtils loadingUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,9 +100,9 @@ public class LoginActivity extends AppCompatActivity {
         this.btnLogin = findViewById(R.id.btn_login);
 
         this.otpUtils = new OTPUtils(this);
+        this.emailPasswordUtils = new EmailPasswordUtils(this);
         this.forgotUtils = new ForgotUtils(this);
         this.signUpUtils = new SignUpUtils(this);
-        this.loadingUtils = new LoadingUtils(this);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -217,27 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            this.signInWithEmailAndPassword(email, password);
+            this.emailPasswordUtils.signInWithEmailAndPassword(email, password);
         }
-    }
-
-    private void signInWithEmailAndPassword(String email, String password) {
-        this.loadingUtils.showLoadingDialog();
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
-            this.loadingUtils.hideLoadingDialog();
-            if (task.isSuccessful()) {
-                FirebaseUser user = mAuth.getCurrentUser();
-                if (user != null) {
-                    Intent intent = new Intent(this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(this, "ACCOUNT NOT FOUND", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, "AUTHENTICATION FAILED", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

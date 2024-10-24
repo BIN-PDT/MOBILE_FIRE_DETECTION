@@ -104,7 +104,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
                     // INFO LAYOUT.
                     holder.loadInfoLayout(mContext, item);
                     // TOOL LAYOUT.
-                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_ID).getValue(Boolean.class);
+                    Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_UID).getValue(Boolean.class);
                     holder.loadToolLayout(deviceId, item.getName(), isOwner, deviceUtils, confirmUtils);
                     // DISABLE LOADING.
                     holder.loadingStatus.setVisibility(View.GONE);
@@ -183,11 +183,13 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
                 this.ivInfo.setOnClickListener(v -> {
                     deviceUtils.setDeviceId(deviceId);
                     deviceUtils.setDeviceName(deviceName);
-                    deviceUtils.showDeviceDialog(R.layout.dialog_update_device);
+                    deviceUtils.showDeviceDialog(R.layout.dialog_device_update);
                 });
                 // DEVICE SHARE.
                 this.ivShare.setOnClickListener(v -> {
-
+                    deviceUtils.setDeviceId(deviceId);
+                    deviceUtils.setDeviceName(deviceName);
+                    deviceUtils.showDeviceDialog(R.layout.dialog_device_share);
                 });
             }
             // DEVICE UNLINK.

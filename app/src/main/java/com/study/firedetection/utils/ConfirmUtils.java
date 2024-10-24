@@ -63,7 +63,7 @@ public class ConfirmUtils {
         if (user != null) {
             user.delete().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    String userPath = String.format("users/%s", HomeActivity.USER_ID);
+                    String userPath = String.format("users/%s", HomeActivity.USER_UID);
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference userRef = database.getReference(userPath);
                     userRef.child("devices").get().addOnCompleteListener(task1 -> {
@@ -78,7 +78,7 @@ public class ConfirmUtils {
                                 }
                                 // INVITOR.
                                 else if (Boolean.FALSE.equals(deviceData.getValue(Boolean.class))) {
-                                    usersDeviceRef.child(HomeActivity.USER_ID).removeValue();
+                                    usersDeviceRef.child(HomeActivity.USER_UID).removeValue();
                                 }
                             });
                             // REMOVE USER FROM DATABASE.
@@ -102,7 +102,7 @@ public class ConfirmUtils {
     }
 
     public void confirmUnlinkDevice() {
-        String deviceUserPath = String.format("users/%s/devices/%s", HomeActivity.USER_ID, this.deviceId);
+        String deviceUserPath = String.format("users/%s/devices/%s", HomeActivity.USER_UID, this.deviceId);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference deviceUserRef = database.getReference(deviceUserPath);
         deviceUserRef.get().addOnCompleteListener(task -> {
@@ -116,7 +116,7 @@ public class ConfirmUtils {
                     }
                     // INVITOR.
                     else if (Boolean.FALSE.equals(task.getResult().getValue(Boolean.class))) {
-                        usersDeviceRef.child(HomeActivity.USER_ID).removeValue();
+                        usersDeviceRef.child(HomeActivity.USER_UID).removeValue();
                     }
                     deviceUserRef.removeValue();
 

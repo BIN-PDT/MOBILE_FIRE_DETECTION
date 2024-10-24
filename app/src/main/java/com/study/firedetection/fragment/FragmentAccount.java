@@ -15,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.study.firedetection.HomeActivity;
@@ -53,7 +52,7 @@ public class FragmentAccount extends Fragment {
 
     @SuppressLint("DefaultLocale")
     private void loadDeviceQuantity() {
-        String userPath = String.format("users/%s", HomeActivity.USER_ID);
+        String userPath = String.format("users/%s", HomeActivity.USER_UID);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference userRef = database.getReference(userPath);
         userRef.get().addOnCompleteListener(task -> {
@@ -85,21 +84,17 @@ public class FragmentAccount extends Fragment {
     @SuppressLint("DefaultLocale")
     private void onEvent() {
         // USER IDENTIFIER.
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user != null) {
-            String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
-            if (userEmail != null && !userEmail.isEmpty()) {
-                this.tvUserId.setText(this.hideUserInformation(userEmail));
-                // DELETE EMAIL ACCOUNT.
-                this.tvDeleteAccount.setOnClickListener(v -> this.emailPasswordUtils.showEmailPasswordDialog());
-                // CHANGE PASSWORD.
-                this.tvChangePassword.setOnClickListener(v -> this.changePasswordUtils.showChangePasswordDialog());
-            } else {
-                this.tvUserId.setText(this.hideUserInformation(userPhone));
-                this.tvChangePassword.setVisibility(View.GONE);
-                // DELETE PHONE ACCOUNT.
-                this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(userPhone));
-            }
+        this.tvUserId.setText(this.hideUserInformation(HomeActivity.USER_ID));
+        if (HomeActivity.USER_ID.contains("@")) {
+            // DELETE EMAIL ACCOUNT.
+            this.tvDeleteAccount.setOnClickListener(v -> this.emailPasswordUtils.showEmailPasswordDialog());
+            // CHANGE PASSWORD.
+            this.tvChangePassword.setOnClickListener(v -> this.changePasswordUtils.showChangePasswordDialog());
+        } else {
+            // DISABLE CHANGE PASSWORD.
+            this.tvChangePassword.setVisibility(View.GONE);
+            // DELETE PHONE ACCOUNT.
+            this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(HomeActivity.USER_ID));
         }
         // LOGOUT.
         this.tvLogout.setOnClickListener(v -> {

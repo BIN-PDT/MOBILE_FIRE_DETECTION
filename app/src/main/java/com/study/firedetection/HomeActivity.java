@@ -22,7 +22,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.study.firedetection.adapter.HomePagerAdapter;
 
 public class HomeActivity extends AppCompatActivity {
-    public static String USER_ID;
+    public static String USER_UID, USER_ID;
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private BottomNavigationView bottomNavigation;
     private ViewPager2 viewPager;
@@ -75,11 +75,13 @@ public class HomeActivity extends AppCompatActivity {
     private void loadUserData() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            USER_ID = user.getUid();
+            USER_UID = user.getUid();
+            String userPhone = user.getPhoneNumber(), userEmail = user.getEmail();
+            USER_ID = userPhone != null && !userPhone.isEmpty() ? userPhone : userEmail;
 
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    String devicesPath = String.format("users/%s/token", HomeActivity.USER_ID);
+                    String devicesPath = String.format("users/%s/token", USER_UID);
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference tokenRef = database.getReference(devicesPath);
                     tokenRef.setValue(task.getResult());

@@ -56,7 +56,7 @@ public class FragmentDevices extends Fragment {
     }
 
     private void loadDevices() {
-        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_ID);
+        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_UID);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
         devicesUserRef.get().addOnCompleteListener(task -> {
@@ -74,7 +74,7 @@ public class FragmentDevices extends Fragment {
                 task.getResult().getChildren().forEach(device -> {
                     String deviceId = device.getKey();
                     // CHECK BE REMOVED FROM DEVICE.
-                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_ID);
+                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_UID);
                     DatabaseReference userDeviceRef = database.getReference(userDevicePath);
                     userDeviceRef.get().addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {
@@ -117,7 +117,7 @@ public class FragmentDevices extends Fragment {
 
     private void showAddDeviceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.mContext);
-        View view = LayoutInflater.from(this.mContext).inflate(R.layout.dialog_add_device, null);
+        View view = LayoutInflater.from(this.mContext).inflate(R.layout.dialog_device_add, null);
         builder.setView(view);
         AlertDialog dialog = builder.create();
         this.onAddDeviceView(view, dialog);
@@ -147,9 +147,9 @@ public class FragmentDevices extends Fragment {
                         Toast.makeText(mContext, "DEVICE WAS LINKED TO ACCOUNT", Toast.LENGTH_SHORT).show();
                     } else {
                         // LINK USER TO DEVICE.
-                        usersDeviceRef.child(HomeActivity.USER_ID).setValue(true);
+                        usersDeviceRef.child(HomeActivity.USER_UID).setValue(true);
                         // LINK DEVICE TO USER.
-                        String userPath = String.format("users/%s/devices", HomeActivity.USER_ID);
+                        String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
                         DatabaseReference devicesUserRef = database.getReference(userPath);
                         devicesUserRef.child(deviceId).setValue(true);
                         // RELOAD DEVICES ADAPTER.
