@@ -14,9 +14,11 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -36,9 +38,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class FragmentDevices extends Fragment {
     private Context mContext;
-    private ProgressBar loadingView;
     private LoadingUtils loadingUtils;
+    private ProgressBar loadingView;
     private ImageView ivAddDevice;
+    private SwipeRefreshLayout srlDevices;
     private DevicesRecyclerAdapter devicesRecyclerAdapter;
     private InvitationsRecyclerAdapter invitationsRecyclerAdapter;
 
@@ -57,6 +60,41 @@ public class FragmentDevices extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        this.loadData();
+    }
+
+    private void onReady(View view) {
+        this.mContext = getContext();
+        this.loadingUtils = new LoadingUtils(getActivity());
+        this.loadingView = view.findViewById(R.id.loading_view);
+        this.ivAddDevice = view.findViewById(R.id.iv_add_device);
+        this.srlDevices = view.findViewById(R.id.srl_devices);
+        // DEVICES LAYOUT.
+        this.devicesRecyclerAdapter = new DevicesRecyclerAdapter(this.mContext, getActivity());
+        RecyclerView rvDevices = view.findViewById(R.id.rv_devices);
+        rvDevices.setLayoutManager(new LinearLayoutManager(
+                this.mContext, LinearLayoutManager.VERTICAL, false));
+        rvDevices.setAdapter(this.devicesRecyclerAdapter);
+        // INVITATIONS LAYOUT.
+        this.invitationsRecyclerAdapter = new InvitationsRecyclerAdapter();
+        this.invitationsRecyclerAdapter.setDevicesRecyclerAdapter(this.devicesRecyclerAdapter);
+        RecyclerView rvInvitations = view.findViewById(R.id.rv_invitations);
+        rvInvitations.setLayoutManager(new LinearLayoutManager(
+                this.mContext, LinearLayoutManager.VERTICAL, false));
+        rvInvitations.setAdapter(this.invitationsRecyclerAdapter);
+    }
+
+    private void onEvent() {
+        this.ivAddDevice.setOnClickListener(v -> this.showAddDeviceDialog());
+        // SWIPE REFRESH LAYOUT.
+        this.srlDevices.setColorSchemeColors(ContextCompat.getColor(this.mContext, R.color.orange));
+        this.srlDevices.setOnRefreshListener(this::loadData);
+        // FIRST LOADING.
+        this.loadData();
+    }
+
+    private void loadData() {
+        this.loadingView.setVisibility(View.VISIBLE);
         this.loadInvitations();
         this.loadDevices();
     }
@@ -108,20 +146,21 @@ public class FragmentDevices extends Fragment {
                 // NO DATA.
                 if (devicesUserCount.get() == 0) {
                     this.devicesRecyclerAdapter.loadOriginalData(new ArrayList<>());
-                    // DISABLE LOADING.
                     this.loadingView.setVisibility(View.GONE);
+                    this.srlDevices.setRefreshing(false);
                     return;
                 }
                 // GET DATA.
                 task.getResult().getChildren().forEach(device -> {
                     String deviceId = device.getKey();
+                    if (deviceId == null) return;
                     // CHECK BE REMOVED FROM DEVICE.
                     String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_UID);
                     DatabaseReference userDeviceRef = database.getReference(userDevicePath);
                     userDeviceRef.get().addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {
                             if (task1.getResult().getValue(Boolean.class) == null)
-                                userDeviceRef.removeValue();
+                                devicesUserRef.child(deviceId).removeValue();
                             else {
                                 data.add(new DeviceItem(deviceId));
                             }
@@ -129,37 +168,13 @@ public class FragmentDevices extends Fragment {
                         // CHECK COMPLETE.
                         if (devicesUserCount.decrementAndGet() == 0) {
                             this.devicesRecyclerAdapter.loadOriginalData(data);
-                            // DISABLE LOADING.
                             this.loadingView.setVisibility(View.GONE);
+                            this.srlDevices.setRefreshing(false);
                         }
                     });
                 });
             }
         });
-    }
-
-    private void onReady(View view) {
-        this.mContext = getContext();
-        this.loadingUtils = new LoadingUtils(getActivity());
-        this.loadingView = view.findViewById(R.id.loading_view);
-        this.ivAddDevice = view.findViewById(R.id.iv_add_device);
-        // DEVICES LAYOUT.
-        this.devicesRecyclerAdapter = new DevicesRecyclerAdapter(this.mContext, getActivity());
-        RecyclerView rvDevices = view.findViewById(R.id.rv_devices);
-        rvDevices.setLayoutManager(new LinearLayoutManager(
-                this.mContext, LinearLayoutManager.VERTICAL, false));
-        rvDevices.setAdapter(this.devicesRecyclerAdapter);
-        // INVITATIONS LAYOUT.
-        this.invitationsRecyclerAdapter = new InvitationsRecyclerAdapter();
-        this.invitationsRecyclerAdapter.setDevicesRecyclerAdapter(this.devicesRecyclerAdapter);
-        RecyclerView rvInvitations = view.findViewById(R.id.rv_invitations);
-        rvInvitations.setLayoutManager(new LinearLayoutManager(
-                this.mContext, LinearLayoutManager.VERTICAL, false));
-        rvInvitations.setAdapter(this.invitationsRecyclerAdapter);
-    }
-
-    private void onEvent() {
-        this.ivAddDevice.setOnClickListener(v -> this.showAddDeviceDialog());
     }
 
     private void showAddDeviceDialog() {
