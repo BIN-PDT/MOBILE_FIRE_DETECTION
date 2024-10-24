@@ -26,10 +26,17 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_invitations"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_tool"
+        android:paddingHorizontal="20dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_devices"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/layout_tool"
+        android:layout_below="@id/rv_invitations"
         android:paddingHorizontal="20dp"
         android:paddingBottom="20dp" />
 

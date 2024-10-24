@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="20dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:id="@+id/layout_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_invitation"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:padding="15dp">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="15dp"
+                android:contentDescription="ICON_INVITATION"
+                android:src="@drawable/icon_invitation"
+                tools:ignore="HardcodedText" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_device_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:fontFamily="@font/bree_serif_regular"
+                    android:letterSpacing="0.05"
+                    android:textColor="@color/gray"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tv_sender"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bree_serif_regular"
+                        android:letterSpacing="0.05"
+                        android:maxLines="1"
+                        android:textColor="@color/gray"
+                        android:textSize="12sp"
+                        android:textStyle="italic" />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_device_tool"
+            android:gravity="center"
+            android:padding="15dp">
+
+            <Button
+                android:id="@+id/btn_accept"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded"
+                android:fontFamily="@font/bree_serif_regular"
+                android:letterSpacing="0.1"
+                android:text="ACCEPT"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:backgroundTint="@color/none"
+                tools:ignore="ButtonStyle,HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_reject"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_rounded"
+                android:fontFamily="@font/bree_serif_regular"
+                android:letterSpacing="0.1"
+                android:text="REJECT"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                app:backgroundTint="@color/fire"
+                tools:ignore="ButtonStyle,HardcodedText" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

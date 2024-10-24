@@ -6,6 +6,13 @@ public class DeviceItem {
     private boolean online;
     private boolean detect;
 
+    public DeviceItem() {
+    }
+
+    public DeviceItem(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

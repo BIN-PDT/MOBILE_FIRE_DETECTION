@@ -23,10 +23,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 import com.study.firedetection.adapter.DevicesRecyclerAdapter;
+import com.study.firedetection.adapter.InvitationsRecyclerAdapter;
 import com.study.firedetection.entity.DeviceItem;
+import com.study.firedetection.entity.InvitationItem;
+import com.study.firedetection.utils.DateUtils;
 import com.study.firedetection.utils.LoadingUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -36,6 +40,7 @@ public class FragmentDevices extends Fragment {
     private LoadingUtils loadingUtils;
     private ImageView ivAddDevice;
     private DevicesRecyclerAdapter devicesRecyclerAdapter;
+    private InvitationsRecyclerAdapter invitationsRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,7 +57,44 @@ public class FragmentDevices extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        this.loadInvitations();
         this.loadDevices();
+    }
+
+    private void loadInvitations() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference sharesRef = database.getReference("shares");
+        sharesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Calendar calendar = Calendar.getInstance();
+                List<InvitationItem> data = new ArrayList<>();
+                List<InvitationItem> expiredItems = new ArrayList<>();
+                // GET DATA.
+                task.getResult().getChildren().forEach(invitation -> {
+                    InvitationItem item = invitation.getValue(InvitationItem.class);
+                    if (item == null) return;
+                    item.setId(invitation.getKey());
+                    // CHECK EXPIRATION.
+                    calendar.setTime(DateUtils.parse(item.getDate()));
+                    calendar.add(Calendar.DAY_OF_MONTH, 3);
+                    if (DateUtils.CURRENT_DATE.compareTo(calendar.getTime()) > 0) {
+                        expiredItems.add(item);
+                        return;
+                    }
+                    // CHECK RECEIVER.
+                    if (item.getReceiver().equals(HomeActivity.USER_ID)) {
+                        data.add(item);
+                    }
+                });
+                this.invitationsRecyclerAdapter.loadOriginalData(data);
+                // DELETE EXPIRED ITEMS.
+                expiredItems.forEach(item -> {
+                    String invitationPath = String.format("shares/%s", item.getId());
+                    DatabaseReference invitationRef = database.getReference(invitationPath);
+                    invitationRef.removeValue();
+                });
+            }
+        });
     }
 
     private void loadDevices() {
@@ -81,9 +123,7 @@ public class FragmentDevices extends Fragment {
                             if (task1.getResult().getValue(Boolean.class) == null)
                                 userDeviceRef.removeValue();
                             else {
-                                DeviceItem item = new DeviceItem();
-                                item.setId(deviceId);
-                                data.add(item);
+                                data.add(new DeviceItem(deviceId));
                             }
                         }
                         // CHECK COMPLETE.
@@ -109,6 +149,13 @@ public class FragmentDevices extends Fragment {
         rvDevices.setLayoutManager(new LinearLayoutManager(
                 this.mContext, LinearLayoutManager.VERTICAL, false));
         rvDevices.setAdapter(this.devicesRecyclerAdapter);
+        // INVITATIONS LAYOUT.
+        this.invitationsRecyclerAdapter = new InvitationsRecyclerAdapter();
+        this.invitationsRecyclerAdapter.setDevicesRecyclerAdapter(this.devicesRecyclerAdapter);
+        RecyclerView rvInvitations = view.findViewById(R.id.rv_invitations);
+        rvInvitations.setLayoutManager(new LinearLayoutManager(
+                this.mContext, LinearLayoutManager.VERTICAL, false));
+        rvInvitations.setAdapter(this.invitationsRecyclerAdapter);
     }
 
     private void onEvent() {
@@ -153,9 +200,7 @@ public class FragmentDevices extends Fragment {
                         DatabaseReference devicesUserRef = database.getReference(userPath);
                         devicesUserRef.child(deviceId).setValue(true);
                         // RELOAD DEVICES ADAPTER.
-                        DeviceItem item = new DeviceItem();
-                        item.setId(deviceId);
-                        this.devicesRecyclerAdapter.addNewItem(item);
+                        this.devicesRecyclerAdapter.addNewItem(new DeviceItem(deviceId));
                         dialog.dismiss();
                     }
                 } else {
