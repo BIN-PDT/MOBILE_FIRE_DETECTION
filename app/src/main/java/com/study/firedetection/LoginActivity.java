@@ -27,7 +27,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.hbb20.CountryCodePicker;
 import com.study.firedetection.service.MyFirebaseMessagingService;
-import com.study.firedetection.utils.EmailPasswordUtils;
+import com.study.firedetection.utils.EmailAccountUtils;
 import com.study.firedetection.utils.ForgotUtils;
 import com.study.firedetection.utils.OTPUtils;
 import com.study.firedetection.utils.SignUpUtils;
@@ -43,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView tvForgot, tvSignUp;
     private Button btnLogin;
     private OTPUtils otpUtils;
-    private EmailPasswordUtils emailPasswordUtils;
+    private EmailAccountUtils emailAccountUtils;
     private ForgotUtils forgotUtils;
     private SignUpUtils signUpUtils;
 
@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
         this.btnLogin = findViewById(R.id.btn_login);
 
         this.otpUtils = new OTPUtils(this);
-        this.emailPasswordUtils = new EmailPasswordUtils(this);
+        this.emailAccountUtils = new EmailAccountUtils(this);
         this.forgotUtils = new ForgotUtils(this);
         this.signUpUtils = new SignUpUtils(this);
     }
@@ -217,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            this.emailPasswordUtils.signInWithEmailAndPassword(email, password);
+            this.emailAccountUtils.signInWithEmailAndPassword(email, password);
         }
     }
 }

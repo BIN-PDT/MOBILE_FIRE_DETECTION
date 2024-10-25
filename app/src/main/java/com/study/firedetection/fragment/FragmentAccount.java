@@ -21,16 +21,16 @@ import com.study.firedetection.HomeActivity;
 import com.study.firedetection.LoginActivity;
 import com.study.firedetection.R;
 import com.study.firedetection.utils.ChangePasswordUtils;
-import com.study.firedetection.utils.EmailPasswordUtils;
-import com.study.firedetection.utils.OTPUtils;
+import com.study.firedetection.utils.EmailAccountUtils;
+import com.study.firedetection.utils.PhoneAccountUtils;
 
 public class FragmentAccount extends Fragment {
     private Context mContext;
     private TextView tvUserId, tvDeviceQuantity;
     private TextView tvChangePassword, tvLogout, tvDeleteAccount;
-    private EmailPasswordUtils emailPasswordUtils;
+    private EmailAccountUtils emailAccountUtils;
+    private PhoneAccountUtils phoneAccountUtils;
     private ChangePasswordUtils changePasswordUtils;
-    private OTPUtils otpUtils;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,10 +75,9 @@ public class FragmentAccount extends Fragment {
         this.tvDeleteAccount = view.findViewById(R.id.tv_delete_account);
 
         Activity activity = getActivity();
-        this.emailPasswordUtils = new EmailPasswordUtils(activity);
+        this.emailAccountUtils = new EmailAccountUtils(activity);
+        this.phoneAccountUtils = new PhoneAccountUtils(activity);
         this.changePasswordUtils = new ChangePasswordUtils(activity);
-        this.otpUtils = new OTPUtils(activity);
-        this.otpUtils.setUseForDeleteAccount(true);
     }
 
     @SuppressLint("DefaultLocale")
@@ -87,14 +86,14 @@ public class FragmentAccount extends Fragment {
         this.tvUserId.setText(this.hideUserInformation(HomeActivity.USER_ID));
         if (HomeActivity.USER_ID.contains("@")) {
             // DELETE EMAIL ACCOUNT.
-            this.tvDeleteAccount.setOnClickListener(v -> this.emailPasswordUtils.showEmailPasswordDialog());
+            this.tvDeleteAccount.setOnClickListener(v -> this.emailAccountUtils.showEmailAccountDialog());
             // CHANGE PASSWORD.
             this.tvChangePassword.setOnClickListener(v -> this.changePasswordUtils.showChangePasswordDialog());
         } else {
             // DISABLE CHANGE PASSWORD.
             this.tvChangePassword.setVisibility(View.GONE);
             // DELETE PHONE ACCOUNT.
-            this.tvDeleteAccount.setOnClickListener(v -> this.otpUtils.sendOTP(HomeActivity.USER_ID));
+            this.tvDeleteAccount.setOnClickListener(v -> this.phoneAccountUtils.showPhoneAccountDialog());
         }
         // LOGOUT.
         this.tvLogout.setOnClickListener(v -> {
@@ -123,13 +122,8 @@ public class FragmentAccount extends Fragment {
                         + "@" + domain;
             }
         } else {
-            if (userId.length() <= 6) {
-                return "*".repeat(userId.length());
-            } else {
-                return userId.substring(0, 3)
-                        + "*".repeat(userId.length() - 6)
-                        + userId.substring(userId.length() - 3);
-            }
+            return "*".repeat(userId.length() - 4)
+                    + userId.substring(userId.length() - 4);
         }
     }
 }

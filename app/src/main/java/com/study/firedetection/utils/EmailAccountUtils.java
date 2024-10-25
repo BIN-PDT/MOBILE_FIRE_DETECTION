@@ -21,31 +21,31 @@ import com.google.firebase.auth.FirebaseUser;
 import com.study.firedetection.HomeActivity;
 import com.study.firedetection.R;
 
-public class EmailPasswordUtils implements ConfirmUtils.IOnClickListener {
+public class EmailAccountUtils implements ConfirmUtils.IOnClickListener {
     private final Activity activity;
     private final FirebaseAuth mAuth;
     private final LoadingUtils loadingUtils;
     private final ConfirmUtils confirmUtils;
     private AlertDialog dialog;
 
-    public EmailPasswordUtils(Activity activity) {
+    public EmailAccountUtils(Activity activity) {
         this.activity = activity;
         this.mAuth = FirebaseAuth.getInstance();
         this.loadingUtils = new LoadingUtils(activity);
         this.confirmUtils = new ConfirmUtils(activity, this);
     }
 
-    public void showEmailPasswordDialog() {
+    public void showEmailAccountDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        View view = LayoutInflater.from(activity).inflate(R.layout.dialog_email_password, null);
-        this.onEmailPasswordView(view);
+        View view = LayoutInflater.from(activity).inflate(R.layout.dialog_email_account, null);
+        this.onEmailAccountView(view);
         builder.setView(view);
 
         this.dialog = builder.create();
         this.dialog.show();
     }
 
-    private void onEmailPasswordView(@NonNull View view) {
+    private void onEmailAccountView(@NonNull View view) {
         EditText edtEmail = view.findViewById(R.id.edt_email);
         EditText edtPassword = view.findViewById(R.id.edt_password);
         Button btnConfirm = view.findViewById(R.id.btn_confirm);
