@@ -75,7 +75,7 @@ public class FragmentHistory extends Fragment {
     @SuppressLint("DefaultLocale")
     private void onEvent() {
         // DATE EVENT.
-        this.tvDate.setText(DateUtils.format(this.selectedDate));
+        this.tvDate.setText(DateUtils.format1(this.selectedDate));
         this.tvDate.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(this.selectedDate);
@@ -84,7 +84,7 @@ public class FragmentHistory extends Fragment {
                     this.mContext, (view, year, month, dayOfMonth) -> {
                 calendar.set(year, month, dayOfMonth);
                 this.selectedDate.setTime(calendar.getTimeInMillis());
-                this.tvDate.setText(DateUtils.format(this.selectedDate));
+                this.tvDate.setText(DateUtils.format1(this.selectedDate));
                 this.updateHistory();
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
             datePickerDialog.show();
@@ -95,7 +95,7 @@ public class FragmentHistory extends Fragment {
             calendar.add(Calendar.DAY_OF_MONTH, -1);
 
             this.selectedDate.setTime(calendar.getTimeInMillis());
-            this.tvDate.setText(DateUtils.format(this.selectedDate));
+            this.tvDate.setText(DateUtils.format1(this.selectedDate));
             this.updateHistory();
         });
         this.ivLater.setOnClickListener(v -> {
@@ -104,7 +104,7 @@ public class FragmentHistory extends Fragment {
             calendar.add(Calendar.DAY_OF_MONTH, 1);
 
             this.selectedDate.setTime(calendar.getTimeInMillis());
-            this.tvDate.setText(DateUtils.format(this.selectedDate));
+            this.tvDate.setText(DateUtils.format1(this.selectedDate));
             this.updateHistory();
         });
         // TIME EVENT.

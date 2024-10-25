@@ -23,7 +23,7 @@ import com.study.firedetection.adapter.HomePagerAdapter;
 
 public class HomeActivity extends AppCompatActivity {
     public static String USER_UID, USER_ID;
-    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
+    private final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1;
     private BottomNavigationView bottomNavigation;
     private ViewPager2 viewPager;
 
@@ -40,7 +40,7 @@ public class HomeActivity extends AppCompatActivity {
     private void requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, this.NOTIFICATION_PERMISSION_REQUEST_CODE);
             }
         }
     }
@@ -48,7 +48,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode == this.NOTIFICATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 this.createNotificationChannel();
             }
