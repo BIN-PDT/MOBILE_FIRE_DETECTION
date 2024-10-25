@@ -81,10 +81,15 @@ public class HomeActivity extends AppCompatActivity {
 
             FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    String devicesPath = String.format("users/%s/token", USER_UID);
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference tokenRef = database.getReference(devicesPath);
+                    // TOKEN.
+                    String tokenPath = String.format("users/%s/token", USER_UID);
+                    DatabaseReference tokenRef = database.getReference(tokenPath);
                     tokenRef.setValue(task.getResult());
+                    // IDENTIFIER.
+                    String identifierPath = String.format("users/%s/identifier", USER_UID);
+                    DatabaseReference identifierRef = database.getReference(identifierPath);
+                    identifierRef.setValue(USER_ID);
                 }
             });
         }

@@ -87,10 +87,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void onReady() {
-        this.ivLoginPhone = findViewById(R.id.iv_login_phone);
-        this.ivLoginEmail = findViewById(R.id.iv_login_email);
-        this.layoutLoginPhone = findViewById(R.id.layout_login_phone);
-        this.layoutLoginEmail = findViewById(R.id.layout_login_email);
+        this.ivLoginPhone = findViewById(R.id.iv_phone);
+        this.ivLoginEmail = findViewById(R.id.iv_email);
+        this.layoutLoginPhone = findViewById(R.id.layout_share_phone);
+        this.layoutLoginEmail = findViewById(R.id.layout_share_email);
         this.ccpCountry = findViewById(R.id.ccp_country);
         this.edtPhone = findViewById(R.id.edt_phone);
         this.edtEmail = findViewById(R.id.edt_email);
@@ -157,8 +157,8 @@ public class LoginActivity extends AppCompatActivity {
             this.edtPhone.setText("");
             this.edtPhone.requestFocus();
 
-            this.ivLoginEmail.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_email));
-            this.ivLoginPhone.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_phone_active));
+            this.ivLoginEmail.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_inactive_email));
+            this.ivLoginPhone.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_active_phone));
             this.layoutLoginEmail.setVisibility(View.GONE);
             this.layoutLoginPhone.setVisibility(View.VISIBLE);
         } else {
@@ -167,8 +167,8 @@ public class LoginActivity extends AppCompatActivity {
             this.updatePasswordField(true);
             this.edtEmail.requestFocus();
 
-            this.ivLoginPhone.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_phone));
-            this.ivLoginEmail.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_email_active));
+            this.ivLoginPhone.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_inactive_phone));
+            this.ivLoginEmail.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.icon_active_email));
             this.layoutLoginPhone.setVisibility(View.GONE);
             this.layoutLoginEmail.setVisibility(View.VISIBLE);
         }

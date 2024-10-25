@@ -22,7 +22,7 @@ public class ConfirmUtils {
     private final Activity activity;
     private final IOnClickListener onClickListener;
     private AlertDialog dialog;
-    private String deviceId;
+    private String deviceId, userUID;
 
     public ConfirmUtils(Activity activity, IOnClickListener onClickListener) {
         this.activity = activity;
@@ -35,6 +35,14 @@ public class ConfirmUtils {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getUserUID() {
+        return userUID;
+    }
+
+    public void setUserUID(String userUID) {
+        this.userUID = userUID;
     }
 
     public void showConfirmDialog() {
@@ -123,6 +131,20 @@ public class ConfirmUtils {
                     this.dialog.dismiss();
                     Toast.makeText(activity, "DEVICE UNLIKED", Toast.LENGTH_SHORT).show();
                 });
+            } else {
+                Toast.makeText(activity, "TASK FAILED", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void confirmRemoveShare() {
+        String userDevicePath = String.format("devices/%s/users/%s", this.deviceId, this.userUID);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userDeviceRef = database.getReference(userDevicePath);
+        userDeviceRef.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                this.dialog.dismiss();
+                Toast.makeText(activity, "USER REMOVED", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(activity, "TASK FAILED", Toast.LENGTH_SHORT).show();
             }

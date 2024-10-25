@@ -28,11 +28,9 @@ import com.study.firedetection.adapter.DevicesRecyclerAdapter;
 import com.study.firedetection.adapter.InvitationsRecyclerAdapter;
 import com.study.firedetection.entity.DeviceItem;
 import com.study.firedetection.entity.InvitationItem;
-import com.study.firedetection.utils.DateUtils;
 import com.study.firedetection.utils.LoadingUtils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -104,33 +102,17 @@ public class FragmentDevices extends Fragment {
         DatabaseReference sharesRef = database.getReference("shares");
         sharesRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Calendar calendar = Calendar.getInstance();
                 List<InvitationItem> data = new ArrayList<>();
-                List<InvitationItem> expiredItems = new ArrayList<>();
                 // GET DATA.
                 task.getResult().getChildren().forEach(invitation -> {
                     InvitationItem item = invitation.getValue(InvitationItem.class);
-                    if (item == null) return;
-                    item.setId(invitation.getKey());
-                    // CHECK EXPIRATION.
-                    calendar.setTime(DateUtils.parse(item.getDate()));
-                    calendar.add(Calendar.DAY_OF_MONTH, 3);
-                    if (DateUtils.CURRENT_DATE.compareTo(calendar.getTime()) > 0) {
-                        expiredItems.add(item);
-                        return;
-                    }
                     // CHECK RECEIVER.
-                    if (item.getReceiver().equals(HomeActivity.USER_ID)) {
+                    if (item != null && item.getReceiver().equals(HomeActivity.USER_ID)) {
+                        item.setId(invitation.getKey());
                         data.add(item);
                     }
                 });
                 this.invitationsRecyclerAdapter.loadOriginalData(data);
-                // DELETE EXPIRED ITEMS.
-                expiredItems.forEach(item -> {
-                    String invitationPath = String.format("shares/%s", item.getId());
-                    DatabaseReference invitationRef = database.getReference(invitationPath);
-                    invitationRef.removeValue();
-                });
             }
         });
     }
@@ -145,7 +127,7 @@ public class FragmentDevices extends Fragment {
                 AtomicLong devicesUserCount = new AtomicLong(task.getResult().getChildrenCount());
                 // NO DATA.
                 if (devicesUserCount.get() == 0) {
-                    this.devicesRecyclerAdapter.loadOriginalData(new ArrayList<>());
+                    this.devicesRecyclerAdapter.loadOriginalData(data);
                     this.loadingView.setVisibility(View.GONE);
                     this.srlDevices.setRefreshing(false);
                     return;

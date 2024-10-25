@@ -20,7 +20,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:contentDescription="ADD_DEVICE"
-            android:src="@drawable/icon_add"
+            android:src="@drawable/icon_tool_add"
             tools:ignore="HardcodedText" />
 
     </LinearLayout>

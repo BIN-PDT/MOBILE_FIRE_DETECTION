@@ -31,28 +31,28 @@
             android:gravity="center">
 
             <ImageView
-                android:id="@+id/iv_login_phone"
+                android:id="@+id/iv_phone"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginEnd="25dp"
                 android:alpha="0.8"
                 android:contentDescription="PHONE_LOGIN"
-                android:src="@drawable/icon_phone_active"
+                android:src="@drawable/icon_active_phone"
                 tools:ignore="HardcodedText" />
 
             <ImageView
-                android:id="@+id/iv_login_email"
+                android:id="@+id/iv_email"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:alpha="0.8"
                 android:contentDescription="EMAIL_LOGIN"
-                android:src="@drawable/icon_email"
+                android:src="@drawable/icon_inactive_email"
                 tools:ignore="HardcodedText" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_login_phone"
+            android:id="@+id/layout_share_phone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical">
@@ -83,7 +83,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_login_email"
+            android:id="@+id/layout_share_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

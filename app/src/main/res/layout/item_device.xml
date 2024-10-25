@@ -82,7 +82,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="15dp"
                     android:contentDescription="TOOL_INFO"
-                    android:src="@drawable/icon_info"
+                    android:src="@drawable/icon_tool_info"
                     tools:ignore="HardcodedText" />
 
                 <ImageView
@@ -91,7 +91,7 @@
                     android:layout_height="24dp"
                     android:layout_marginEnd="15dp"
                     android:contentDescription="TOOL_SHARE"
-                    android:src="@drawable/icon_share"
+                    android:src="@drawable/icon_tool_share"
                     tools:ignore="HardcodedText" />
 
             </LinearLayout>
@@ -101,7 +101,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="TOOL_UNLINK"
-                android:src="@drawable/icon_unlink"
+                android:src="@drawable/icon_tool_unlink"
                 tools:ignore="HardcodedText" />
 
         </LinearLayout>

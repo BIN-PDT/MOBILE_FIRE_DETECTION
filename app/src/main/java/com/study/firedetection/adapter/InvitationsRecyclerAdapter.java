@@ -57,6 +57,7 @@ public class InvitationsRecyclerAdapter extends RecyclerView.Adapter<Invitations
         InvitationItem item = this.originalData.get(position);
 
         holder.tvDeviceName.setText(item.getDeviceName().toUpperCase());
+        holder.tvDate.setText(item.getDate());
         holder.tvSender.setText(item.getSender());
         // FIREBASE EVENT.
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -90,12 +91,13 @@ public class InvitationsRecyclerAdapter extends RecyclerView.Adapter<Invitations
     }
 
     public static class ItemViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvDeviceName, tvSender;
+        private final TextView tvDeviceName, tvDate, tvSender;
         private final Button btnAccept, btnReject;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
             this.tvDeviceName = itemView.findViewById(R.id.tv_device_name);
+            this.tvDate = itemView.findViewById(R.id.tv_date);
             this.tvSender = itemView.findViewById(R.id.tv_sender);
             this.btnAccept = itemView.findViewById(R.id.btn_accept);
             this.btnReject = itemView.findViewById(R.id.btn_reject);
