@@ -173,38 +173,55 @@ public class FragmentDevices extends Fragment {
         Button btnConfirm = view.findViewById(R.id.btn_confirm);
 
         btnConfirm.setOnClickListener(v -> {
-            String deviceId = edtDeviceId.getText().toString();
+            String deviceId = edtDeviceId.getText().toString().trim();
             if (deviceId.isEmpty()) {
                 Toast.makeText(mContext, "DEVICE ID CAN'T BE EMPTY", Toast.LENGTH_SHORT).show();
                 edtDeviceId.requestFocus();
                 return;
             }
 
-            String usersDevicePath = String.format("devices/%s/users", deviceId);
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
-            // ENABLE LOADING.
-            this.loadingUtils.showLoadingDialog();
-            usersDeviceRef.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    if (task.getResult().exists()) {
-                        Toast.makeText(mContext, "DEVICE WAS LINKED TO ACCOUNT", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // LINK USER TO DEVICE.
-                        usersDeviceRef.child(HomeActivity.USER_UID).setValue(true);
-                        // LINK DEVICE TO USER.
-                        String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
-                        DatabaseReference devicesUserRef = database.getReference(userPath);
-                        devicesUserRef.child(deviceId).setValue(true);
-                        // RELOAD DEVICES ADAPTER.
-                        this.devicesRecyclerAdapter.addNewItem(new DeviceItem(deviceId));
-                        dialog.dismiss();
-                    }
-                } else {
+            this.addDevice(deviceId, dialog);
+        });
+    }
+
+    private void addDevice(String deviceId, AlertDialog dialog) {
+        this.loadingUtils.showLoadingDialog();
+        String devicePath = String.format("devices/%s", deviceId);
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference deviceRef = database.getReference(devicePath);
+        deviceRef.get().addOnCompleteListener(task -> {
+            this.loadingUtils.hideLoadingDialog();
+            if (!task.isSuccessful()) {
+                Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            // CHECK DEVICE EXIST.
+            if (!task.getResult().exists()) {
+                Toast.makeText(mContext, "DEVICE DOESN'T EXIST", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            DatabaseReference userDeviceRef = task.getResult().child("users").child(HomeActivity.USER_UID).getRef();
+            userDeviceRef.get().addOnCompleteListener(task1 -> {
+                if (!task1.isSuccessful()) {
                     Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                // DISABLE LOADING.
-                this.loadingUtils.hideLoadingDialog();
+
+                if (task1.getResult().getValue(Boolean.class) == null) {
+                    // LINK USER TO DEVICE.
+                    userDeviceRef.setValue(true);
+                    // LINK DEVICE TO USER.
+                    String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
+                    DatabaseReference devicesUserRef = database.getReference(userPath);
+                    devicesUserRef.child(deviceId).setValue(true);
+                    // RELOAD DEVICES ADAPTER.
+                    dialog.dismiss();
+                    this.devicesRecyclerAdapter.addNewItem(new DeviceItem(deviceId));
+                    Toast.makeText(mContext, "DEVICE LINKED", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mContext, "DEVICE WAS LINKED TO ACCOUNT", Toast.LENGTH_SHORT).show();
+                }
             });
         });
     }
