@@ -73,7 +73,7 @@ public class FragmentDevices extends Fragment {
                 this.mContext, LinearLayoutManager.VERTICAL, false));
         rvDevices.setAdapter(this.devicesRecyclerAdapter);
         // INVITATIONS LAYOUT.
-        this.invitationsRecyclerAdapter = new InvitationsRecyclerAdapter();
+        this.invitationsRecyclerAdapter = new InvitationsRecyclerAdapter(this.mContext);
         this.invitationsRecyclerAdapter.setDevicesRecyclerAdapter(this.devicesRecyclerAdapter);
         RecyclerView rvInvitations = view.findViewById(R.id.rv_invitations);
         rvInvitations.setLayoutManager(new LinearLayoutManager(

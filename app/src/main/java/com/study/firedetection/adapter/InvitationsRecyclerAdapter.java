@@ -1,11 +1,13 @@
 package com.study.firedetection.adapter;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,8 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvitationsRecyclerAdapter extends RecyclerView.Adapter<InvitationsRecyclerAdapter.ItemViewHolder> {
+    private final Context mContext;
     private final List<InvitationItem> originalData = new ArrayList<>();
     private DevicesRecyclerAdapter devicesRecyclerAdapter;
+
+    public InvitationsRecyclerAdapter(Context mContext) {
+        this.mContext = mContext;
+    }
 
     public void setDevicesRecyclerAdapter(DevicesRecyclerAdapter devicesRecyclerAdapter) {
         this.devicesRecyclerAdapter = devicesRecyclerAdapter;
@@ -63,20 +70,31 @@ public class InvitationsRecyclerAdapter extends RecyclerView.Adapter<Invitations
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         String invitationPath = String.format("shares/%s", item.getId());
         holder.btnAccept.setOnClickListener(v -> {
-            // LINK DEVICE TO USER.
-            String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_UID);
-            DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
-            devicesUserRef.child(item.getDeviceId()).setValue(false);
-            // LINK USER TO DEVICE.
+            // CHECK SHARE MAXIMUM.
             String usersDevicePath = String.format("devices/%s/users", item.getDeviceId());
             DatabaseReference usersDeviceRef = database.getReference(usersDevicePath);
-            usersDeviceRef.child(HomeActivity.USER_UID).setValue(false);
-            // ADD DEVICE TO DEVICES ADAPTER.
-            this.devicesRecyclerAdapter.addNewItem(new DeviceItem(item.getDeviceId()));
-            // DELETE INVITATION.
-            DatabaseReference invitationRef = database.getReference(invitationPath);
-            invitationRef.removeValue();
-            this.removeItem(position);
+            usersDeviceRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if (task.getResult().getChildrenCount() == SharesRecyclerAdapter.MAX_SHARES + 1) {
+                        Toast.makeText(mContext, "DEVICE HAS REACHED SHARING LIMIT", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // LINK USER TO DEVICE.
+                        usersDeviceRef.child(HomeActivity.USER_UID).setValue(false);
+                        // LINK DEVICE TO USER.
+                        String devicesUserPath = String.format("users/%s/devices", HomeActivity.USER_UID);
+                        DatabaseReference devicesUserRef = database.getReference(devicesUserPath);
+                        devicesUserRef.child(item.getDeviceId()).setValue(false);
+                        // ADD DEVICE TO DEVICES ADAPTER.
+                        this.devicesRecyclerAdapter.addNewItem(new DeviceItem(item.getDeviceId()));
+                        // DELETE INVITATION.
+                        DatabaseReference invitationRef = database.getReference(invitationPath);
+                        invitationRef.removeValue();
+                        this.removeItem(position);
+                    }
+                } else {
+                    Toast.makeText(this.mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
         holder.btnReject.setOnClickListener(v -> {
             DatabaseReference invitationRef = database.getReference(invitationPath);
