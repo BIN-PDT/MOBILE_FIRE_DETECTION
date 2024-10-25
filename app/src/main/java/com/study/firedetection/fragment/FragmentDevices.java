@@ -32,7 +32,6 @@ import com.study.firedetection.utils.LoadingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class FragmentDevices extends Fragment {
     private Context mContext;
@@ -103,7 +102,6 @@ public class FragmentDevices extends Fragment {
         sharesRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<InvitationItem> data = new ArrayList<>();
-                // GET DATA.
                 task.getResult().getChildren().forEach(invitation -> {
                     InvitationItem item = invitation.getValue(InvitationItem.class);
                     // CHECK RECEIVER.
@@ -124,37 +122,10 @@ public class FragmentDevices extends Fragment {
         devicesUserRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<DeviceItem> data = new ArrayList<>();
-                AtomicLong devicesUserCount = new AtomicLong(task.getResult().getChildrenCount());
-                // NO DATA.
-                if (devicesUserCount.get() == 0) {
-                    this.devicesRecyclerAdapter.loadOriginalData(data);
-                    this.loadingView.setVisibility(View.GONE);
-                    this.srlDevices.setRefreshing(false);
-                    return;
-                }
-                // GET DATA.
-                task.getResult().getChildren().forEach(device -> {
-                    String deviceId = device.getKey();
-                    if (deviceId == null) return;
-                    // CHECK BE REMOVED FROM DEVICE.
-                    String userDevicePath = String.format("devices/%s/users/%s", deviceId, HomeActivity.USER_UID);
-                    DatabaseReference userDeviceRef = database.getReference(userDevicePath);
-                    userDeviceRef.get().addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            if (task1.getResult().getValue(Boolean.class) == null)
-                                devicesUserRef.child(deviceId).removeValue();
-                            else {
-                                data.add(new DeviceItem(deviceId));
-                            }
-                        }
-                        // CHECK COMPLETE.
-                        if (devicesUserCount.decrementAndGet() == 0) {
-                            this.devicesRecyclerAdapter.loadOriginalData(data);
-                            this.loadingView.setVisibility(View.GONE);
-                            this.srlDevices.setRefreshing(false);
-                        }
-                    });
-                });
+                task.getResult().getChildren().forEach(device -> data.add(new DeviceItem(device.getKey())));
+                this.devicesRecyclerAdapter.loadOriginalData(data);
+                this.loadingView.setVisibility(View.GONE);
+                this.srlDevices.setRefreshing(false);
             }
         });
     }
@@ -191,38 +162,37 @@ public class FragmentDevices extends Fragment {
         DatabaseReference deviceRef = database.getReference(devicePath);
         deviceRef.get().addOnCompleteListener(task -> {
             this.loadingUtils.hideLoadingDialog();
-            if (!task.isSuccessful()) {
-                Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            // CHECK DEVICE EXIST.
-            if (!task.getResult().exists()) {
-                Toast.makeText(mContext, "DEVICE DOESN'T EXIST", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            DatabaseReference userDeviceRef = task.getResult().child("users").child(HomeActivity.USER_UID).getRef();
-            userDeviceRef.get().addOnCompleteListener(task1 -> {
-                if (!task1.isSuccessful()) {
-                    Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+            if (task.isSuccessful()) {
+                // CHECK DEVICE EXIST.
+                if (!task.getResult().exists()) {
+                    Toast.makeText(mContext, "DEVICE DOESN'T EXIST", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (task1.getResult().getValue(Boolean.class) == null) {
-                    // LINK USER TO DEVICE.
-                    userDeviceRef.setValue(true);
-                    // LINK DEVICE TO USER.
-                    String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
-                    DatabaseReference devicesUserRef = database.getReference(userPath);
-                    devicesUserRef.child(deviceId).setValue(true);
-                    // RELOAD DEVICES ADAPTER.
-                    dialog.dismiss();
-                    this.devicesRecyclerAdapter.addNewItem(new DeviceItem(deviceId));
-                    Toast.makeText(mContext, "DEVICE LINKED", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mContext, "DEVICE WAS LINKED TO ACCOUNT", Toast.LENGTH_SHORT).show();
-                }
-            });
+                DatabaseReference userDeviceRef = task.getResult().child("users").child(HomeActivity.USER_UID).getRef();
+                userDeviceRef.get().addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        if (task1.getResult().getValue(Boolean.class) == null) {
+                            // LINK USER TO DEVICE.
+                            userDeviceRef.setValue(true);
+                            // LINK DEVICE TO USER.
+                            String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
+                            DatabaseReference devicesUserRef = database.getReference(userPath);
+                            devicesUserRef.child(deviceId).setValue(true);
+                            // RELOAD DEVICES ADAPTER.
+                            dialog.dismiss();
+                            this.devicesRecyclerAdapter.addNewItem(new DeviceItem(deviceId));
+                            Toast.makeText(mContext, "DEVICE LINKED", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(mContext, "DEVICE WAS LINKED TO ACCOUNT", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Toast.makeText(mContext, "TASK FAILED", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 }

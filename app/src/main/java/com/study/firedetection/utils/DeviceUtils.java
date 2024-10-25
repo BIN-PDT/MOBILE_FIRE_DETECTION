@@ -221,12 +221,13 @@ public class DeviceUtils {
                             String userID = task1.getResult().getValue(String.class);
                             if (Boolean.FALSE.equals(user.getValue(Boolean.class))) {
                                 data.add(new ShareItem(userUID, userID));
+                                // CHECK COMPLETE.
+                                if (totalItem.decrementAndGet() == 1) {
+                                    sharesRecyclerAdapter.loadOriginalData(data);
+                                    srlShare.setRefreshing(false);
+                                }
                             }
 
-                            if (totalItem.decrementAndGet() == 1) {
-                                sharesRecyclerAdapter.loadOriginalData(data);
-                                srlShare.setRefreshing(false);
-                            }
                         }
                     });
                 });
