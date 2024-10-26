@@ -169,12 +169,12 @@ public class FragmentDevices extends Fragment {
                     return;
                 }
 
-                DatabaseReference userDeviceRef = task.getResult().child("users").child(HomeActivity.USER_UID).getRef();
-                userDeviceRef.get().addOnCompleteListener(task1 -> {
+                DatabaseReference usersDeviceRef = task.getResult().child("users").getRef();
+                usersDeviceRef.get().addOnCompleteListener(task1 -> {
                     if (task1.isSuccessful()) {
-                        if (task1.getResult().getValue(Boolean.class) == null) {
+                        if (task1.getResult().getChildrenCount() == 0) {
                             // LINK USER TO DEVICE.
-                            userDeviceRef.setValue(true);
+                            usersDeviceRef.child(HomeActivity.USER_UID).setValue(true);
                             // LINK DEVICE TO USER.
                             String userPath = String.format("users/%s/devices", HomeActivity.USER_UID);
                             DatabaseReference devicesUserRef = database.getReference(userPath);
