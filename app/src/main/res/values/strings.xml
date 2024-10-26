@@ -11,4 +11,8 @@
     <string name="none_notification">SAFE ZONE</string>
     <string name="default_start_time">00:00</string>
     <string name="default_limit_time">23:59</string>
+    <!-- MESSAGE SETTINGS -->
+    <string name="message_unlink_device">ARE YOU SURE YOU WANT TO UNLINK THIS \"%s\" DEVICE?</string>
+    <string name="message_remove_user">ARE YOU SURE YOU WANT TO REMOVE THIS \"%s\" USER?</string>
+    <string name="message_delete_account">ARE YOU SURE YOU WANT TO DELETE YOUR ACCOUNT?</string>
 </resources>

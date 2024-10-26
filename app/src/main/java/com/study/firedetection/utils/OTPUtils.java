@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -199,6 +200,8 @@ public class OTPUtils implements ConfirmUtils.IOnClickListener {
 
     private void showDeleteAccountConfirmDialog() {
         this.dialog.dismiss();
+        String message = ContextCompat.getString(activity, R.string.message_delete_account);
+        this.confirmUtils.setMessage(message);
         this.confirmUtils.showConfirmDialog();
     }
 

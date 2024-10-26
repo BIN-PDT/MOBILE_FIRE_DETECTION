@@ -42,8 +42,8 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
     private final DeviceUtils deviceUtils;
     private final ConfirmUtils confirmUtils;
 
-    public DevicesRecyclerAdapter(Context mContext, Activity activity) {
-        this.mContext = mContext;
+    public DevicesRecyclerAdapter(Context context, Activity activity) {
+        this.mContext = context;
         this.deviceUtils = new DeviceUtils(activity);
         this.confirmUtils = new ConfirmUtils(activity, this);
     }
@@ -105,7 +105,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
                     holder.loadInfoLayout(mContext, item);
                     // TOOL LAYOUT.
                     Boolean isOwner = snapshot.child("users").child(HomeActivity.USER_UID).getValue(Boolean.class);
-                    holder.loadToolLayout(deviceId, item.getName(), isOwner, deviceUtils, confirmUtils);
+                    holder.loadToolLayout(mContext, deviceId, item.getName(), isOwner, deviceUtils, confirmUtils);
                     // DISABLE LOADING.
                     holder.loadingStatus.setVisibility(View.GONE);
                 }
@@ -174,7 +174,7 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             }
         }
 
-        private void loadToolLayout(String deviceId, String deviceName, Boolean isOwner,
+        private void loadToolLayout(Context context, String deviceId, String deviceName, Boolean isOwner,
                                     DeviceUtils deviceUtils, ConfirmUtils confirmUtils) {
             this.layoutOwnerTool.setVisibility(View.GONE);
             if (Boolean.TRUE.equals(isOwner)) {
@@ -194,6 +194,8 @@ public class DevicesRecyclerAdapter extends RecyclerView.Adapter<DevicesRecycler
             }
             // DEVICE UNLINK.
             this.ivUnlink.setOnClickListener(v -> {
+                String message = ContextCompat.getString(context, R.string.message_unlink_device);
+                confirmUtils.setMessage(String.format(message, deviceName));
                 confirmUtils.setDeviceId(deviceId);
                 confirmUtils.showConfirmDialog();
             });

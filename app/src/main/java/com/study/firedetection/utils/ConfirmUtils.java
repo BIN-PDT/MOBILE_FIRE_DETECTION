@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -22,11 +23,19 @@ public class ConfirmUtils {
     private final Activity activity;
     private final IOnClickListener onClickListener;
     private AlertDialog dialog;
-    private String deviceId, userUID;
+    private String message, deviceId, userUID;
 
     public ConfirmUtils(Activity activity, IOnClickListener onClickListener) {
         this.activity = activity;
         this.onClickListener = onClickListener;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getDeviceId() {
@@ -50,15 +59,18 @@ public class ConfirmUtils {
         View view = LayoutInflater.from(activity).inflate(R.layout.dialog_confirm, null);
         this.onConfirmView(view);
         builder.setView(view);
+        builder.setCancelable(false);
 
         this.dialog = builder.create();
         this.dialog.show();
     }
 
     private void onConfirmView(@NonNull View view) {
+        TextView tvMessage = view.findViewById(R.id.tv_message);
         Button btnConfirm = view.findViewById(R.id.btn_confirm);
         Button btnCancel = view.findViewById(R.id.btn_cancel);
 
+        tvMessage.setText(this.message);
         btnConfirm.setOnClickListener(v -> this.onClickListener.onConfirm());
         btnCancel.setOnClickListener(v -> {
             this.onClickListener.onCancel();

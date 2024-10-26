@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -108,6 +109,8 @@ public class EmailAccountUtils implements ConfirmUtils.IOnClickListener {
             this.loadingUtils.hideLoadingDialog();
             if (task.isSuccessful()) {
                 this.dialog.dismiss();
+                String message = ContextCompat.getString(activity, R.string.message_delete_account);
+                this.confirmUtils.setMessage(message);
                 this.confirmUtils.showConfirmDialog();
             } else Toast.makeText(activity, "WRONG EMAIL OR PASSWORD", Toast.LENGTH_SHORT).show();
         });

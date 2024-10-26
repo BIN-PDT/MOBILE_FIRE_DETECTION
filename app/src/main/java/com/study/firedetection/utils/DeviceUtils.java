@@ -192,6 +192,7 @@ public class DeviceUtils {
 
             this.shareDevice(userId, edtUserId, sharesRecyclerAdapter);
         });
+        srlShares.setColorSchemeColors(ContextCompat.getColor(activity, R.color.orange));
         srlShares.setOnRefreshListener(() -> this.loadShares(sharesRecyclerAdapter, srlShares));
         // FIRST LOADING.
         this.loadShares(sharesRecyclerAdapter, srlShares);

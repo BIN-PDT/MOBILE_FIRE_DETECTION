@@ -28,15 +28,26 @@
         android:paddingVertical="35dp">
 
         <TextView
+            android:id="@+id/tv_message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/bree_serif_regular"
             android:letterSpacing="0.05"
-            android:padding="20dp"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bree_serif_regular"
+            android:letterSpacing="0.05"
+            android:paddingVertical="5dp"
             android:text="THIS ACTION CAN'T BE UNDONE!"
             android:textAlignment="center"
             android:textColor="@color/red"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold"
             tools:ignore="HardcodedText" />
 

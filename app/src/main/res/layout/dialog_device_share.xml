@@ -54,8 +54,8 @@
 
             <ImageView
                 android:id="@+id/iv_share"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:alpha="0.8"
                 android:contentDescription="TAB_SHARE"
                 android:src="@drawable/icon_inactive_share"
